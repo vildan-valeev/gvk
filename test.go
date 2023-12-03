@@ -2,6 +2,6 @@ package gvk
 
 import "fmt"
 
-func test() {
+func Test() {
 	fmt.Print("test")
 }
