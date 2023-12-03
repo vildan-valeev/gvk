@@ -1,128 +1,73 @@
 package gvk
 
-// EventType type.
-type EventType string
-
-// EventType list.
-const (
-	EventConfirmation                  EventType = "confirmation"
-	EventMessageNew                              = "message_new"
-	EventMessageReply                            = "message_reply"
-	EventMessageEdit                             = "message_edit"
-	EventMessageAllow                            = "message_allow"
-	EventMessageDeny                             = "message_deny"
-	EventMessageTypingState                      = "message_typing_state"
-	EventMessageEvent                            = "message_event"
-	EventPhotoNew                                = "photo_new"
-	EventPhotoCommentNew                         = "photo_comment_new"
-	EventPhotoCommentEdit                        = "photo_comment_edit"
-	EventPhotoCommentRestore                     = "photo_comment_restore"
-	EventPhotoCommentDelete                      = "photo_comment_delete"
-	EventAudioNew                                = "audio_new"
-	EventVideoNew                                = "video_new"
-	EventVideoCommentNew                         = "video_comment_new"
-	EventVideoCommentEdit                        = "video_comment_edit"
-	EventVideoCommentRestore                     = "video_comment_restore"
-	EventVideoCommentDelete                      = "video_comment_delete"
-	EventWallPostNew                             = "wall_post_new"
-	EventWallRepost                              = "wall_repost"
-	EventWallReplyNew                            = "wall_reply_new"
-	EventWallReplyEdit                           = "wall_reply_edit"
-	EventWallReplyRestore                        = "wall_reply_restore"
-	EventWallReplyDelete                         = "wall_reply_delete"
-	EventBoardPostNew                            = "board_post_new"
-	EventBoardPostEdit                           = "board_post_edit"
-	EventBoardPostRestore                        = "board_post_restore"
-	EventBoardPostDelete                         = "board_post_delete"
-	EventMarketCommentNew                        = "market_comment_new"
-	EventMarketCommentEdit                       = "market_comment_edit"
-	EventMarketCommentRestore                    = "market_comment_restore"
-	EventMarketCommentDelete                     = "market_comment_delete"
-	EventMarketOrderNew                          = "market_order_new"
-	EventMarketOrderEdit                         = "market_order_edit"
-	EventGroupLeave                              = "group_leave"
-	EventGroupJoin                               = "group_join"
-	EventUserBlock                               = "user_block"
-	EventUserUnblock                             = "user_unblock"
-	EventPollVoteNew                             = "poll_vote_new"
-	EventGroupOfficersEdit                       = "group_officers_edit"
-	EventGroupChangeSettings                     = "group_change_settings"
-	EventGroupChangePhoto                        = "group_change_photo"
-	EventVkpayTransaction                        = "vkpay_transaction"
-	EventLeadFormsNew                            = "lead_forms_new"
-	EventAppPayload                              = "app_payload"
-	EventMessageRead                             = "message_read"
-	EventLikeAdd                                 = "like_add"
-	EventLikeRemove                              = "like_remove"
-	EventDonutSubscriptionCreate                 = "donut_subscription_create"
-	EventDonutSubscriptionProlonged              = "donut_subscription_prolonged"
-	EventDonutSubscriptionExpired                = "donut_subscription_expired"
-	EventDonutSubscriptionCancelled              = "donut_subscription_cancelled"
-	EventDonutSubscriptionPriceChanged           = "donut_subscription_price_changed"
-	EventDonutMoneyWithdraw                      = "donut_money_withdraw"
-	EventDonutMoneyWithdrawError                 = "donut_money_withdraw_error"
+import (
+	"encoding/json"
+	"github.com/SevereCloud/vksdk/v2/events"
 )
 
-type Object struct {
-	MessageNew *MessageNewObject
-	//messageReply *MessageReplyObject
-	//messageEdit  *MessageEditObject
-	//messageAllow                  *MessageAllowObject
-	//messageDeny                   *MessageDenyObject
-	//messageTypingState            *MessageTypingStateObject
-	//messageEvent                  *MessageEventObject
-	//photoNew                      *PhotoNewObject
-	//photoCommentNew               *PhotoCommentNewObject
-	//photoCommentEdit              *PhotoCommentEditObject
-	//photoCommentRestore           *PhotoCommentRestoreObject
-	//photoCommentDelete            *PhotoCommentDeleteObject
-	//audioNew                      *AudioNewObject
-	//videoNew                      *VideoNewObject
-	//videoCommentNew               *VideoCommentNewObject
-	//videoCommentEdit              *VideoCommentEditObject
-	//videoCommentRestore           *VideoCommentRestoreObject
-	//videoCommentDelete            *VideoCommentDeleteObject
-	//wallPostNew                   *WallPostNewObject
-	//wallRepost                    *WallRepostObject
-	//wallReplyNew                  *WallReplyNewObject
-	//wallReplyEdit                 *WallReplyEditObject
-	//wallReplyRestore              *WallReplyRestoreObject
-	//wallReplyDelete               *WallReplyDeleteObject
-	//boardPostNew                  *BoardPostNewObject
-	//boardPostEdit                 *BoardPostEditObject
-	//boardPostRestore              *BoardPostRestoreObject
-	//boardPostDelete               *BoardPostDeleteObject
-	//marketCommentNew              *MarketCommentNewObject
-	//marketCommentEdit             *MarketCommentEditObject
-	//marketCommentRestore          *MarketCommentRestoreObject
-	//marketCommentDelete           *MarketCommentDeleteObject
-	//marketOrderNew                *MarketOrderNewObject
-	//marketOrderEdit               *MarketOrderEditObject
-	//groupLeave                    *GroupLeaveObject
-	//groupJoin                     *GroupJoinObject
-	//userBlock                     *UserBlockObject
-	//userUnblock                   *UserUnblockObject
-	//pollVoteNew                   *PollVoteNewObject
-	//groupOfficersEdit             *GroupOfficersEditObject
-	//groupChangeSettings           *GroupChangeSettingsObject
-	//groupChangePhoto              *GroupChangePhotoObject
-	//vkpayTransaction              *VkpayTransactionObject
-	//leadFormsNew                  *LeadFormsNewObject
-	//appPayload                    *AppPayloadObject
-	//messageRead                   *MessageReadObject
-	//likeAdd                       *LikeAddObject
-	//likeRemove                    *LikeRemoveObject
-	//donutSubscriptionCreate       *DonutSubscriptionCreateObject
-	//donutSubscriptionProlonged    *DonutSubscriptionProlongedObject
-	//donutSubscriptionExpired      *DonutSubscriptionExpiredObject
-	//donutSubscriptionCancelled    *DonutSubscriptionCancelledObject
-	//donutSubscriptionPriceChanged *DonutSubscriptionPriceChangedObject
-	//donutMoneyWithdraw            *DonutMoneyWithdrawObject
-	//donutMoneyWithdrawError       *DonutMoneyWithdrawErrorObject
+type GroupEvent struct {
+	*events.GroupEvent
+	ParsedObj *events.MessageNewObject
+	//obj *events.MessageNewObject
+	//obj *events.MessageNewObject
+	//obj *events.MessageNewObject
+	//obj *events.MessageNewObject
+
 }
 
-// MessageNewObject struct.
-type MessageNewObject struct {
-	Message    Message    `json:"message"`
-	ClientInfo ClientInfo `json:"client_info"`
+// Handler group event handler.
+func (g *GroupEvent) Handle() error { //nolint:gocyclo
+	//ctx = context.WithValue(ctx, internal.GroupIDKey, g.GroupID)
+	//ctx = context.WithValue(ctx, internal.EventIDKey, g.EventID)
+	//ctx = context.WithValue(ctx, internal.EventVersionKey, g.V)
+
+	switch g.Type {
+	case events.EventMessageNew:
+		var obj events.MessageNewObject
+		if err := json.Unmarshal(g.Object, &obj); err != nil {
+			return err
+		}
+		g.ParsedObj = &obj
+	case events.EventMessageReply:
+		var obj events.MessageReplyObject
+		if err := json.Unmarshal(g.Object, &obj); err != nil {
+			return err
+		}
+
+	}
+
+	return nil
 }
+
+//
+//// ChatID returns the ID of the chat the update is coming from.
+//func (u Update) ChatID() int64 {
+//	switch {
+//	case u.Message != nil:
+//		return u.Message.Chat.ID
+//	case u.EditedMessage != nil:
+//		return u.EditedMessage.Chat.ID
+//	case u.ChannelPost != nil:
+//		return u.ChannelPost.Chat.ID
+//	case u.EditedChannelPost != nil:
+//		return u.EditedChannelPost.Chat.ID
+//	case u.InlineQuery != nil:
+//		return u.InlineQuery.From.ID
+//	case u.ChosenInlineResult != nil:
+//		return u.ChosenInlineResult.From.ID
+//	case u.CallbackQuery != nil:
+//		return u.CallbackQuery.Message.Chat.ID
+//	case u.ShippingQuery != nil:
+//		return u.ShippingQuery.From.ID
+//	case u.PreCheckoutQuery != nil:
+//		return u.PreCheckoutQuery.From.ID
+//	case u.MyChatMember != nil:
+//		return u.MyChatMember.Chat.ID
+//	case u.ChatMember != nil:
+//		return u.ChatMember.Chat.ID
+//	case u.ChatJoinRequest != nil:
+//		return u.ChatJoinRequest.Chat.ID
+//	default:
+//		return 0
+//	}
+//}

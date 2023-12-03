@@ -1,231 +1,286 @@
 package gvk
 
 import (
-	"compress/gzip"
+	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"github.com/SevereCloud/vksdk/v2"
+	"github.com/SevereCloud/vksdk/v2/api"
+	poll "github.com/SevereCloud/vksdk/v2/longpoll-bot"
 	"io"
 	"log"
 	"net/http"
-	"net/url"
+	"strconv"
 	"sync"
 )
 
 type Bot interface {
-	// Update will be called upon receiving any update from Telegram.
-	Update(*Update)
+	Update(*GroupEvent)
 }
 
-// NewBotFn is called every time echotron receives an update with a chat ID never
-// encountered before.
-type NewBotFn func(chatId int64) Bot
+type NewBotFn func(chatId int) Bot
 
-// The Dispatcher passes the updates from the Telegram Bot API to the Bot instance
-// associated with each chatID. When a new chat ID is found, the provided function
-// of type NewBotFn will be called.
-type Dispatcher struct {
-	sessionMap map[int64]Bot
+type LongPoll struct {
+	sessionMap map[int]Bot
 	newBot     NewBotFn
-	updates    chan *Update
-	httpServer *http.Server
-	api        API
+	updates    chan *GroupEvent
+	VK         *api.VK
+	Client     *http.Client
 	mu         sync.Mutex
+
+	GroupID int
+	Server  string
+	Key     string
+	Ts      string
+	Wait    int
 }
 
 // NewDispatcher returns a new instance of the Dispatcher object.
 // Calls the Update function of the bot associated with each chat ID.
 // If a new chat ID is found, newBotFn will be called first.
-func NewDispatcher(token string, newBotFn NewBotFn) *Dispatcher {
-	d := &Dispatcher{
-		api:        NewAPI(token),
-		sessionMap: make(map[int64]Bot),
+func NewLongPoll(token string, groupID int, newBotFn NewBotFn) *LongPoll {
+	d := &LongPoll{
+		VK:         api.NewVK(token),
+		GroupID:    groupID,
+		sessionMap: make(map[int]Bot),
 		newBot:     newBotFn,
-		updates:    make(chan *Update),
+		updates:    make(chan *GroupEvent),
+		Client:     http.DefaultClient,
+		Wait:       25,
 	}
+
+	err := d.updateServer(true)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	go d.listen()
+
 	return d
 }
 
-// DelSession deletes the Bot instance, seen as a session, from the
-// map with all of them.
-func (d *Dispatcher) DelSession(chatID int64) {
-	d.mu.Lock()
-	delete(d.sessionMap, chatID)
-	d.mu.Unlock()
-}
-
-// AddSession allows to arbitrarily create a new Bot instance.
-func (d *Dispatcher) AddSession(chatID int64) {
-	d.mu.Lock()
-	if _, isIn := d.sessionMap[chatID]; !isIn {
-		d.sessionMap[chatID] = d.newBot(chatID)
+func (lp *LongPoll) updateServer(updateTs bool) error {
+	params := api.Params{
+		"group_id": lp.GroupID,
 	}
-	d.mu.Unlock()
+
+	serverSetting, err := lp.VK.GroupsGetLongPollServer(params)
+	if err != nil {
+		return err
+	}
+
+	lp.Key = serverSetting.Key
+	lp.Server = serverSetting.Server
+
+	if updateTs {
+		lp.Ts = serverSetting.Ts
+	}
+
+	return nil
 }
 
-// Poll is a wrapper function for PollOptions.
-func (d *Dispatcher) Poll() error {
-	return d.PollOptions(true, UpdateOptions{Timeout: 120})
+type Response struct {
+	Ts      string       `json:"ts"`
+	Updates []GroupEvent `json:"updates"`
+	Failed  int          `json:"failed"`
 }
 
-// PollOptions starts the polling loop so that the dispatcher calls the function Update
-// upon receiving any update from Telegram.
-func (d *Dispatcher) PollOptions(dropPendingUpdates bool, opts UpdateOptions) error {
-	var (
-		timeout      = opts.Timeout
-		isFirstRun   = true
-		lastUpdateID = -1
-	)
+func (lp *LongPoll) check(ctx context.Context) (response Response, err error) {
+	u := fmt.Sprintf("%s?act=a_check&key=%s&ts=%s&wait=%d", lp.Server, lp.Key, lp.Ts, lp.Wait)
 
-	// deletes webhook if present to run in long polling mode
-	if _, err := d.api.DeleteWebhook(dropPendingUpdates); err != nil {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
+	if err != nil {
+		return response, err
+	}
+
+	resp, err := lp.Client.Do(req)
+	if err != nil {
+		return response, err
+	}
+	defer resp.Body.Close()
+
+	response, err = parseResponse(resp.Body)
+	if err != nil {
+		return response, err
+	}
+
+	err = lp.checkResponse(response)
+
+	return response, err
+}
+
+func parseResponse(reader io.Reader) (response Response, err error) {
+	decoder := json.NewDecoder(reader)
+	for decoder.More() {
+		token, err := decoder.Token()
+		if err != nil {
+			if errors.Is(err, io.EOF) {
+				break
+			}
+
+			return response, err
+		}
+
+		t, ok := token.(string)
+		if !ok {
+			continue
+		}
+
+		switch t {
+		case "failed":
+			raw, err := decoder.Token()
+			if err != nil {
+				return response, err
+			}
+
+			response.Failed = int(raw.(float64))
+		case "updates":
+			var updates []GroupEvent
+
+			err = decoder.Decode(&updates)
+			if err != nil {
+				return response, err
+			}
+
+			response.Updates = updates
+		case "ts":
+			// can be a number in the response with "failed" field: {"ts":8,"failed":1}
+			// or string, e.g. {"ts":"8","updates":[]}
+			rawTs, err := decoder.Token()
+			if err != nil {
+				return response, err
+			}
+
+			if ts, isNumber := rawTs.(float64); isNumber {
+				response.Ts = strconv.Itoa(int(ts))
+			} else {
+				response.Ts = rawTs.(string)
+			}
+		}
+	}
+
+	return response, err
+}
+
+func (lp *LongPoll) checkResponse(response Response) (err error) {
+	switch response.Failed {
+	case 0:
+		lp.Ts = response.Ts
+	case 1:
+		lp.Ts = response.Ts
+	case 2:
+		err = lp.updateServer(false)
+	case 3:
+		err = lp.updateServer(true)
+	default:
+		err = &poll.Failed{response.Failed}
+	}
+
+	return
+}
+
+func (lp *LongPoll) autoSetting(ctx context.Context) error {
+	params := api.Params{
+		"group_id":    lp.GroupID,
+		"enabled":     true,
+		"api_version": vksdk.API,
+	}.WithContext(ctx)
+	//for _, event := range lp.ListEvents() {
+	//	params[string(event)] = true
+	//}
+
+	// Updating LongPoll settings
+	_, err := lp.VK.GroupsSetLongPollSettings(params)
+
+	return err
+}
+
+// Run handler.
+func (lp *LongPoll) Run() error {
+	return lp.RunWithContext(context.Background())
+}
+
+// RunWithContext handler.
+func (lp *LongPoll) RunWithContext(ctx context.Context) error {
+	return lp.run(ctx)
+}
+
+func (lp *LongPoll) run(ctx context.Context) error {
+	//ctx, lp.cancel = context.WithCancel(ctx)
+
+	if err := lp.autoSetting(ctx); err != nil {
 		return err
 	}
 
 	for {
-		if isFirstRun {
-			opts.Timeout = 0
-		}
-
-		opts.Offset = lastUpdateID + 1
-		response, err := d.api.GetUpdates(&opts)
-		if err != nil {
-			return err
-		}
-
-		if !dropPendingUpdates || !isFirstRun {
-			for _, u := range response.Result {
-				d.updates <- u
+		select {
+		case _, ok := <-ctx.Done():
+			if !ok {
+				return nil
 			}
-		}
+		default:
+			resp, err := lp.check(ctx)
+			if err != nil {
+				return err
+			}
 
-		if l := len(response.Result); l > 0 {
-			lastUpdateID = response.Result[l-1].ID
-		}
+			//ctx = context.WithValue(ctx, internal.LongPollTsKey, resp.Ts)
 
-		if isFirstRun {
-			isFirstRun = false
-			opts.Timeout = timeout
+			for _, u := range resp.Updates {
+
+				lp.updates <- &u
+			}
+
 		}
 	}
 }
 
-func (d *Dispatcher) instance(chatID int64) Bot {
-	bot, ok := d.sessionMap[chatID]
+func (lp *LongPoll) instance(chatID int) Bot {
+	bot, ok := lp.sessionMap[chatID]
 	if !ok {
-		bot = d.newBot(chatID)
-		d.mu.Lock()
-		d.sessionMap[chatID] = bot
-		d.mu.Unlock()
+		bot = lp.newBot(chatID)
+		lp.mu.Lock()
+		lp.sessionMap[chatID] = bot
+		lp.mu.Unlock()
 	}
 	return bot
 }
 
-func (d *Dispatcher) listen() {
-	for update := range d.updates {
-		var chatID int64
-
-		switch {
-		case update.Message != nil:
-			chatID = update.Message.Chat.ID
-		case update.EditedMessage != nil:
-			chatID = update.EditedMessage.Chat.ID
-		case update.ChannelPost != nil:
-			chatID = update.ChannelPost.Chat.ID
-		case update.EditedChannelPost != nil:
-			chatID = update.EditedChannelPost.Chat.ID
-		case update.InlineQuery != nil:
-			chatID = update.InlineQuery.From.ID
-		case update.ChosenInlineResult != nil:
-			chatID = update.ChosenInlineResult.From.ID
-		case update.CallbackQuery != nil:
-			chatID = update.CallbackQuery.Message.Chat.ID
-		case update.ShippingQuery != nil:
-			chatID = update.ShippingQuery.From.ID
-		case update.PreCheckoutQuery != nil:
-			chatID = update.PreCheckoutQuery.From.ID
-		case update.MyChatMember != nil:
-			chatID = update.MyChatMember.Chat.ID
-		case update.ChatMember != nil:
-			chatID = update.ChatMember.Chat.ID
-		case update.ChatJoinRequest != nil:
-			chatID = update.ChatJoinRequest.Chat.ID
-		default:
-			continue
-		}
-
-		bot := d.instance(chatID)
+func (lp *LongPoll) listen() {
+	for update := range lp.updates {
+		bot := lp.instance(update.ParsedObj.Message.PeerID)
 		go bot.Update(update)
 	}
 }
 
-// ListenWebhook is a wrapper function for ListenWebhookOptions.
-func (d *Dispatcher) ListenWebhook(webhookURL string) error {
-	return d.ListenWebhookOptions(webhookURL, false, nil)
-}
+//// Shutdown gracefully shuts down the longpoll without interrupting any active connections.
+//func (lp *LongPoll) Shutdown() {
+//	if lp.cancel != nil {
+//		lp.cancel()
+//	}
+//}
 
-// ListenWebhookOptions sets a webhook and listens for incoming updates.
-// The webhookUrl should be provided in the following format: '<hostname>:<port>/<path>',
-// eg: 'https://example.com:443/bot_token'.
-// ListenWebhook will then proceed to communicate the webhook url '<hostname>/<path>' to Telegram
-// and run a webserver that listens to ':<port>' and handles the path.
-func (d *Dispatcher) ListenWebhookOptions(webhookURL string, dropPendingUpdates bool, opts *WebhookOptions) error {
-	u, err := url.Parse(webhookURL)
-	if err != nil {
-		return err
-	}
+//// FullResponse handler.
+//func (lp *LongPoll) FullResponse(f func(Response)) {
+//	lp.funcFullResponseList = append(lp.funcFullResponseList, f)
+//}
+//
 
-	whURL := fmt.Sprintf("%s%s", u.Hostname(), u.EscapedPath())
-	if _, err = d.api.SetWebhook(whURL, dropPendingUpdates, opts); err != nil {
-		return err
-	}
-
-	if d.httpServer != nil {
-		mux := http.NewServeMux()
-		mux.Handle("/", d.httpServer.Handler)
-		mux.HandleFunc(u.EscapedPath(), d.HandleWebhook)
-		d.httpServer.Handler = mux
-		return d.httpServer.ListenAndServe()
-	}
-	http.HandleFunc(u.EscapedPath(), d.HandleWebhook)
-	return http.ListenAndServe(fmt.Sprintf(":%s", u.Port()), nil)
-}
-
-// SetHTTPServer allows to set a custom http.Server for ListenWebhook and ListenWebhookOptions.
-func (d *Dispatcher) SetHTTPServer(s *http.Server) {
-	d.httpServer = s
-}
-
-// HandleWebhook is the http.HandlerFunc for the webhook URL.
-// Useful if you've already a http server running and want to handle the request yourself.
-func (d *Dispatcher) HandleWebhook(w http.ResponseWriter, r *http.Request) {
-	var update Update
-
-	jsn, err := readRequest(r)
-	if err != nil {
-		log.Println("echotron.Dispatcher", "HandleWebhook", err)
-		return
-	}
-
-	if err := json.Unmarshal(jsn, &update); err != nil {
-		log.Println("echotron.Dispatcher", "HandleWebhook", err)
-		return
-	}
-
-	d.updates <- &update
-}
-
-func readRequest(r *http.Request) ([]byte, error) {
-	switch r.Header.Get("Content-Encoding") {
-	case "gzip":
-		reader, err := gzip.NewReader(r.Body)
-		if err != nil {
-			return []byte{}, err
-		}
-		defer reader.Close()
-		return io.ReadAll(reader)
-
-	default:
-		return io.ReadAll(r.Body)
-	}
-}
+//
+//// DelSession deletes the Bot instance, seen as a session, from the
+//// map with all of them.
+//func (lp *LongPoll) DelSession(chatID int64) {
+//	d.mu.Lock()
+//	delete(d.sessionMap, chatID)
+//	d.mu.Unlock()
+//}
+//
+//// AddSession allows to arbitrarily create a new Bot instance.
+//func (lp *LongPoll) AddSession(chatID int64) {
+//	d.mu.Lock()
+//	if _, isIn := d.sessionMap[chatID]; !isIn {
+//		d.sessionMap[chatID] = d.newBot(chatID)
+//	}
+//	d.mu.Unlock()
+//}
