@@ -2,68 +2,63 @@ package main
 
 import (
 	"fmt"
-	sdk "github.com/SevereCloud/vksdk/v2/api"
 	"github.com/vildan-valeev/gvk"
 	"log"
 	"strings"
 )
 
 // Recursive type definition of the bot state function.
-type stateFn func(event *gvk.GroupEvent) stateFn
+type stateFn func(event *gvk.Update) stateFn
 
 type bot struct {
-	chatID int
+	chatID int64
 	state  stateFn
 	name   string
 
-	API *sdk.VK
+	gvk.API
 }
 
-const token = "b30fae3f8d488e20cdbe041cbec9a0aa62e7c52e6107f97f97a9fd9007abe32223e1373cce590bfabf374"
+const (
+	groupID = 2354
+	token   = "b30fae3f8d488e20cdbe041cbec9a0aa62e7c52e6107f97f97a9fd9007abe32223e1373cce590bfabf374"
+)
 
-func newBot(chatID int) gvk.Bot {
+func newBot(chatID int64) gvk.Bot {
 	b := &bot{
 		chatID: chatID,
-		API:    sdk.NewVK(token),
+		API:    gvk.NewAPI(token),
 	}
 
-	b.state = b.handleMessage
+	b.state = b.EntryHandler
 	return b
 }
 
-func (b *bot) Update(update *gvk.GroupEvent) {
+func (b *bot) Update(update *gvk.Update) {
 	b.state = b.state(update)
 }
 
-func (b *bot) handleMessage(update *gvk.GroupEvent) stateFn {
-	if strings.HasPrefix(update.ParsedObj.Message.Text, "ping") {
-		b.API.MessagesSend(sdk.Params{"user_ids": "", "peer_ids": ""})
-		// Here we return b.handleName since next time we receive a message it
-		// will be the new name.
-		return b.handleName
+func (b *bot) EntryHandler(update *gvk.Update) stateFn {
+	if strings.HasPrefix(update.MessageNew.Text, "ping") {
+		b.MessagesSend("pong", update.MessageNew.FromID, &gvk.MessagesSendOptions{UserID: update.MessageNew.FromID, PeerID: 0})
+
+		return b.handleNext
 	}
 
-	return b.handleMessage
+	return b.EntryHandler
 }
 
-func (b *bot) handleName(update *gvk.GroupEvent) stateFn {
-	b.name = update.ParsedObj.Message.Text
-	b.API.MessagesSend(sdk.Params{"user_ids": "", "peer_ids": ""})
-	// Here we return b.handleMessage since the next time we receive a message
-	// it will be handled in the default way.
-	return b.handleMessage
+func (b *bot) handleNext(update *gvk.Update) stateFn {
+	b.name = update.MessageNew.Text
+	b.MessagesSend("pong again)))", update.MessageNew.FromID, &gvk.MessagesSendOptions{UserID: update.MessageNew.FromID, PeerID: 0})
+
+	return b.EntryHandler
 }
 
 func main() {
 	fmt.Print("Start!")
 
-	vk := sdk.NewVK(token)
+	dsp, err := gvk.NewDispatcher(token, groupID, newBot)
 
-	group, err := vk.GroupsGetByID(nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	dsp := gvk.NewLongPoll(token, group[0].ID, newBot)
-	log.Println(dsp.Run())
+	log.Println(err)
+	log.Println(dsp.Poll())
 }
