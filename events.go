@@ -1,9 +1,9 @@
 package gvk
 
-// MessageNewObject struct.
-type MessageNewObject struct {
-	Message    MessagesMessage `json:"message"`
-	ClientInfo ClientInfo      `json:"client_info"`
+// MessageNew https://dev.vk.com/ru/api/community-events/json-schema#Сообщения
+type MessageNew struct {
+	Message    Message    `json:"message"`
+	ClientInfo ClientInfo `json:"client_info"`
 }
 
 //// MessageReplyObject struct.

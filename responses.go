@@ -1,59 +1,63 @@
 package gvk
 
+type Response interface {
+	Base() APIError
+}
+
+type ResponseMessagesSend struct {
+	APIError     // ошибка
+	Response int `json:"response,omitempty"`
+}
+
+func (a ResponseMessagesSend) Base() APIError {
+	return a.APIError
+}
+
+type ResponseGetLongPollServer struct {
+	Key    string `json:"key,omitempty"`
+	Server string `json:"server,omitempty"`
+	Ts     string `json:"ts,omitempty"`
+	APIError
+}
+
+func (a ResponseGetLongPollServer) Base() APIError {
+	return a.APIError
+}
+
+type ResponseSetLongPollSettings struct {
+	APIError
+}
+
+func (a ResponseSetLongPollSettings) Base() APIError {
+	return a.APIError
+}
+
+type ResponseUpdate struct {
+	Ts      string    `json:"ts,omitempty"`
+	Updates []*Update `json:"updates,omitempty"`
+	Failed  int64     `json:"failed,omitempty"` // ошибка
+}
+
+func (a ResponseUpdate) Base() APIError {
+	// TODO переделать
+	return APIError{Code: a.Failed}
+}
+
 type Update struct {
 	Type    EventType `json:"type"`
 	GroupID int       `json:"group_id"`
 	EventID string    `json:"event_id"`
 	V       string    `json:"v"`
 
-	MessageNew   *MessagesMessage    `json:"object"`
-	messageReply *MessageReplyObject `json:"object"`
-
-	//добавить остальные объекты
-}
-
-type APIResponse interface {
-	// Base returns the object of type APIResponseBase contained in each implemented type.
-	Base() APIResponseBase
-}
-
-type APIResponseBase struct {
-	Message   string `json:"description,omitempty"`
-	ErrorCode int    `json:"error_code,omitempty"`
-}
-
-func (a APIResponseBase) Base() APIResponseBase {
-	return a
-}
-
-// APIResponseUpdate represents the incoming response from Telegram servers.
-// Used by all methods that return an array of Update objects on success.
-type APIResponseUpdate struct {
-	// TODO: "failed":2 — истекло время действия ключа, нужно заново получить key методом groups.getLongPollServer.
-	//•
-	//"failed":3 — информация утрачена, нужно запросить новые key и ts методом groups.getLongPollServer.
-	Failed          uint8     `json:"failed,omitempty"`
-	Ts              int64     `json:"ts,omitempty"`
-	Updates         []*Update `json:"updates,omitempty"`
-	APIResponseBase           // ошибка
-}
-
-func (a APIResponseUpdate) Base() APIResponseBase {
-	return a.APIResponseBase
-}
-
-type APIResponseGetLongPollServer struct {
-	Key    string `json:"key,omitempty"`
-	Server string `json:"server,omitempty"`
-	Ts     string `json:"ts,omitempty"`
-	APIResponseBase
+	MessageNew *MessageNew `json:"object"`
+	//TODO: добавить остальные объекты
 }
 
 // ChatID returns the ID of the chat the update is coming from.
 func (u Update) ChatID() int64 {
 	switch {
 	case u.MessageNew != nil:
-		return u.MessageNew.FromID
+		return u.MessageNew.Message.FromID
 	//case u.EditedMessage != nil:
 	//	return u.EditedMessage.Chat.ID
 	//case u.ChannelPost != nil:

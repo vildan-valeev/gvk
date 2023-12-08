@@ -3,14 +3,14 @@ package main
 import (
 	"fmt"
 	"github.com/vildan-valeev/gvk"
+
 	"log"
 	"strings"
 )
 
-// Recursive type definition of the bot state function.
 type stateFn func(event *gvk.Update) stateFn
 
-type bot struct {
+type Bot struct {
 	chatID int64
 	state  stateFn
 	name   string
@@ -19,12 +19,12 @@ type bot struct {
 }
 
 const (
-	groupID = 2354
+	groupID = 194299208
 	token   = "b30fae3f8d488e20cdbe041cbec9a0aa62e7c52e6107f97f97a9fd9007abe32223e1373cce590bfabf374"
 )
 
 func newBot(chatID int64) gvk.Bot {
-	b := &bot{
+	b := &Bot{
 		chatID: chatID,
 		API:    gvk.NewAPI(token),
 	}
@@ -33,23 +33,40 @@ func newBot(chatID int64) gvk.Bot {
 	return b
 }
 
-func (b *bot) Update(update *gvk.Update) {
+func (b *Bot) Update(update *gvk.Update) {
 	b.state = b.state(update)
 }
 
-func (b *bot) EntryHandler(update *gvk.Update) stateFn {
-	if strings.HasPrefix(update.MessageNew.Text, "ping") {
-		b.MessagesSend("pong", update.MessageNew.FromID, &gvk.MessagesSendOptions{UserID: update.MessageNew.FromID, PeerID: 0})
+func (b *Bot) EntryHandler(update *gvk.Update) stateFn {
+	if strings.HasPrefix(update.MessageNew.Message.Text, "ping") {
+		b.MessagesSend(
+			"pong",
+			update.MessageNew.Message.FromID,
+			&gvk.MessagesSendOptions{
+				UserID: update.MessageNew.Message.FromID,
+				PeerID: 0})
 
 		return b.handleNext
 	}
+	b.MessagesSend(
+		"not understand...",
+		update.MessageNew.Message.FromID,
+		&gvk.MessagesSendOptions{
+			UserID: update.MessageNew.Message.FromID,
+			PeerID: 0})
 
 	return b.EntryHandler
 }
 
-func (b *bot) handleNext(update *gvk.Update) stateFn {
-	b.name = update.MessageNew.Text
-	b.MessagesSend("pong again)))", update.MessageNew.FromID, &gvk.MessagesSendOptions{UserID: update.MessageNew.FromID, PeerID: 0})
+func (b *Bot) handleNext(update *gvk.Update) stateFn {
+	b.name = update.MessageNew.Message.Text
+	b.MessagesSend(
+		"pong again )))",
+		update.MessageNew.Message.FromID,
+		&gvk.MessagesSendOptions{
+			UserID: update.MessageNew.Message.FromID,
+			PeerID: 0,
+		})
 
 	return b.EntryHandler
 }

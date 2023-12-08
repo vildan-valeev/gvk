@@ -1,6 +1,8 @@
 package gvk
 
 import (
+	"context"
+	"log"
 	"net/http"
 	"sync"
 )
@@ -42,13 +44,23 @@ func NewDispatcher(token string, groupID int64, newBotFn NewBotFn) (*Dispatcher,
 	if err != nil {
 		return nil, err
 	}
+
 	go d.listen()
+
 	return d, nil
 }
 
 // Poll is a wrapper function for PollOptions.
 func (d *Dispatcher) Poll() error {
-	return d.PollOptions(true, UpdateOptions{Timeout: 120})
+	opts := UpdateOptions{
+		Server: d.Server,
+		Act:    "a_check",
+		Key:    d.Key,
+		Ts:     d.Ts,
+		Wait:   d.Wait,
+	}
+
+	return d.PollOptions(true, opts)
 }
 
 func (d *Dispatcher) PollOptions(dropPendingUpdates bool, opts UpdateOptions) error {
@@ -69,6 +81,11 @@ func (d *Dispatcher) PollOptions(dropPendingUpdates bool, opts UpdateOptions) er
 		//}
 
 		response, err := d.api.GetUpdates(&opts)
+		if err != nil {
+			return err
+		}
+
+		err = d.check(response)
 		if err != nil {
 			return err
 		}
@@ -111,7 +128,7 @@ func (d *Dispatcher) listen() {
 }
 
 func (d *Dispatcher) updateServer(updateTs bool) error {
-	serverSetting, err := d.api.MessagesGetLongPollServer(&GetLongPollServerOptions{GroupID: d.GroupID})
+	serverSetting, err := d.api.GroupsGetLongPollServer(&GetLongPollServerOptions{GroupID: d.GroupID})
 	if err != nil {
 		return err
 	}
@@ -123,5 +140,34 @@ func (d *Dispatcher) updateServer(updateTs bool) error {
 		d.Ts = serverSetting.Ts
 	}
 
+	return nil
+}
+
+func (d *Dispatcher) autoSetting(ctx context.Context) error {
+	// Updating LongPoll settings
+	opts := SetLongPollSettingsOptions{
+		GroupID:    d.GroupID,
+		Enable:     1,
+		APIVersion: APIVersion,
+	}
+	_, err := d.api.GroupsSetLongPollSettings(&opts)
+
+	return err
+}
+
+func (d *Dispatcher) check(r ResponseUpdate) (err error) {
+	switch r.Failed {
+	case 0:
+		d.Ts = r.Ts
+	case 1:
+		d.Ts = r.Ts
+	case 2:
+		err = d.updateServer(false)
+	case 3:
+		err = d.updateServer(true)
+	default:
+		log.Println(err)
+		//err = &APIError{failed: r.failed}
+	}
 	return nil
 }

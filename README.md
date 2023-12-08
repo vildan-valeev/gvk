@@ -1,5 +1,6 @@
 # GVK - golang vk api
 
+Library with states, goroutines
 
 ## Example
 ```go

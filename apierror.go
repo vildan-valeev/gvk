@@ -2,23 +2,20 @@ package gvk
 
 import "fmt"
 
-// APIError represents an error returned by the Telegram API.
 type APIError struct {
-	desc string
-	code int
-}
-
-// ErrorCode returns the error code received from the Telegram API.
-func (a *APIError) ErrorCode() int {
-	return a.code
-}
-
-// Description returns the error description received from the Telegram API.
-func (a *APIError) Description() string {
-	return a.desc
+	Code       int64  `json:"error_code"`    // todo const type
+	Subcode    int64  `json:"error_subcode"` // todo const type
+	Message    string `json:"error_msg"`
+	Text       string `json:"error_text"`
+	CaptchaSID string `json:"captcha_sid"`
+	CaptchaImg string `json:"captcha_img"`
 }
 
 // Error returns the error string.
-func (a *APIError) Error() string {
-	return fmt.Sprintf("API error: %d %s", a.code, a.desc)
+func (a APIError) Error() string {
+	return fmt.Sprintf("API error: %d %s", a.Code, a.Message)
+}
+
+func (a APIError) Base() APIError {
+	return a
 }
