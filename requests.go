@@ -25,7 +25,8 @@ func get[T Response](base, endpoint string, vals url.Values) (res T, err error) 
 	if err != nil {
 		return res, err
 	}
-
+	log.Printf("Response Error: %v", err)
+	log.Printf("Response BODY: %s", string(cnt))
 	if err = json.Unmarshal(cnt, &res); err != nil {
 		return
 	}
@@ -53,7 +54,7 @@ func SendGetRequest(url string) ([]byte, error) {
 }
 
 func check(r Response) error {
-	e := r.Base()
-	log.Println("API ERROR:", e.Code, e.Message)
+	//e := r.Base()
+	//log.Println("API ERROR:", e.Code, e.Message)
 	return nil
 }

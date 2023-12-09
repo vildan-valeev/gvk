@@ -42,11 +42,10 @@ func (b *Bot) EntryHandler(update *gvk.Update) stateFn {
 	if strings.HasPrefix(update.MessageNew.Message.Text, "ping") {
 		b.MessagesSend(
 			"pong",
-			update.MessageNew.Message.FromID,
 			&gvk.MessagesSendOptions{
-				UserID:   b.chatID,
-				PeerID:   update.MessageNew.Message.PeerID,
-				RandomID: 0,
+				UserID: b.chatID,
+				//PeerID:   update.MessageNew.Message.PeerID,
+				//RandomID: 1,
 			})
 
 		return b.handleNext
@@ -54,10 +53,11 @@ func (b *Bot) EntryHandler(update *gvk.Update) stateFn {
 
 	b.MessagesSend(
 		"not understand...",
-		update.MessageNew.Message.FromID,
 		&gvk.MessagesSendOptions{
 			UserID: b.chatID,
-			PeerID: update.MessageNew.Message.PeerID})
+			//PeerID:   update.MessageNew.Message.PeerID,
+			//RandomID: 2,
+		})
 
 	return b.EntryHandler
 }
@@ -66,10 +66,10 @@ func (b *Bot) handleNext(update *gvk.Update) stateFn {
 	b.name = update.MessageNew.Message.Text
 	b.MessagesSend(
 		"pong again )))",
-		update.MessageNew.Message.FromID,
 		&gvk.MessagesSendOptions{
-			UserID: update.MessageNew.Message.FromID,
-			PeerID: 0,
+			UserID: b.chatID,
+			//PeerID:   update.MessageNew.Message.PeerID,
+			//RandomID: 0,
 		})
 
 	return b.EntryHandler

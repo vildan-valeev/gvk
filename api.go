@@ -1,6 +1,7 @@
 package gvk
 
 import (
+	"math/rand"
 	"net/url"
 	"strconv"
 )
@@ -32,13 +33,12 @@ func (a API) GetUpdates(opts *UpdateOptions) (res APIResponseUpdate, err error) 
 	return get[APIResponseUpdate](opts.Server, "", addValues(vals, opts))
 }
 
-func (a API) MessagesSend(text string, chatID int64, opts *MessagesSendOptions) (res APIResponseMessagesSend, err error) {
+func (a API) MessagesSend(text string, opts *MessagesSendOptions) (res APIResponseMessagesSend, err error) {
 	var vals = make(url.Values)
 	vals.Set("message", text)
-	vals.Set("chat_id", strconv.FormatInt(chatID, 10))
 	vals.Set("access_token", a.token)
 	vals.Set("v", APIVersion)
-	vals.Set("random_id", "0")
+	vals.Set("random_id", strconv.Itoa(int(rand.Uint32())))
 	return get[APIResponseMessagesSend](a.base, "messages.send", addValues(vals, opts))
 }
 

@@ -13,9 +13,9 @@ type GetLongPollServerOptions struct {
 }
 
 type MessagesSendOptions struct {
-	UserID   int64 `query:"user_id"`
-	RandomID int32 `query:"random_id"`
-	PeerID   int64 `query:"peer_id"`
+	UserID int64 `query:"user_id"`
+	//RandomID int32 `query:"random_id"`
+	//PeerID   int64 `query:"peer_id"`
 }
 
 type SetLongPollSettingsOptions struct {

@@ -2,6 +2,7 @@ package gvk
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"sync"
@@ -23,10 +24,7 @@ type Dispatcher struct {
 	mu         sync.Mutex
 
 	GroupID int64
-	Server  string
-	Key     string
-	Ts      string
-	Wait    int64
+	opts    UpdateOptions
 }
 
 // NewDispatcher returns a new instance of the Dispatcher object.
@@ -39,7 +37,6 @@ func NewDispatcher(token string, groupID int64, newBotFn NewBotFn) (*Dispatcher,
 		newBot:     newBotFn,
 		updates:    make(chan *Update),
 		GroupID:    groupID,
-		Wait:       25,
 	}
 	err := d.updateServer(true)
 	if err != nil {
@@ -52,18 +49,11 @@ func NewDispatcher(token string, groupID int64, newBotFn NewBotFn) (*Dispatcher,
 
 // Poll is a wrapper function for PollOptions.
 func (d *Dispatcher) Poll() error {
-	opts := UpdateOptions{
-		Server: d.Server,
-		Act:    "a_check",
-		Key:    d.Key,
-		Ts:     d.Ts,
-		Wait:   d.Wait,
-	}
 
-	return d.PollOptions(true, opts)
+	return d.PollOptions(true)
 }
 
-func (d *Dispatcher) PollOptions(dropPendingUpdates bool, opts UpdateOptions) error {
+func (d *Dispatcher) PollOptions(dropPendingUpdates bool) error {
 	//var (
 	//	timeout    = d.Wait
 	//	isFirstRun = true //TODO: сброс апдейтов
@@ -80,7 +70,7 @@ func (d *Dispatcher) PollOptions(dropPendingUpdates bool, opts UpdateOptions) er
 		//	opts.Timeout = 0
 		//}
 		time.Sleep(2 * time.Second)
-		result, err := d.api.GetUpdates(&opts)
+		result, err := d.api.GetUpdates(&d.opts)
 		if err != nil {
 			return err
 		}
@@ -122,7 +112,13 @@ func (d *Dispatcher) instance(chatID int64) Bot {
 
 func (d *Dispatcher) listen() {
 	for update := range d.updates {
-		bot := d.instance(update.ChatID())
+		id := update.ChatID()
+		// если ошибка и chat_ID не пришел
+		if id == 0 {
+			continue
+		}
+
+		bot := d.instance(id)
 		go bot.Update(update)
 	}
 }
@@ -132,12 +128,12 @@ func (d *Dispatcher) updateServer(updateTs bool) error {
 	if err != nil {
 		return err
 	}
-
-	d.Key = serverSetting.Response.Key
-	d.Server = serverSetting.Response.Server
+	//TODO: повесить мютексы
+	d.opts.Key = serverSetting.Response.Key
+	d.opts.Server = serverSetting.Response.Server
 
 	if updateTs {
-		d.Ts = serverSetting.Response.Ts
+		d.opts.Ts = serverSetting.Response.Ts
 	}
 
 	return nil
@@ -158,16 +154,29 @@ func (d *Dispatcher) autoSetting(ctx context.Context) error {
 func (d *Dispatcher) check(r APIResponseUpdate) (err error) {
 	switch r.Failed {
 	case 0:
-		d.Ts = r.Ts
+		d.opts.Ts = r.Ts
 	case 1:
-		d.Ts = r.Ts
+		d.opts.Ts = r.Ts
 	case 2:
 		err = d.updateServer(false)
 	case 3:
 		err = d.updateServer(true)
 	default:
 		log.Println("Dispatcher update check", err)
-		//err = &APIError{failed: r.failed}
+		err = &Failed{Code: r.Failed}
 	}
 	return nil
+}
+
+// Failed struct.
+type Failed struct {
+	Code int64
+}
+
+// Error returns the message of a Failed.
+func (e Failed) Error() string {
+	return fmt.Sprintf(
+		"longpoll: failed code %d",
+		e.Code,
+	)
 }
