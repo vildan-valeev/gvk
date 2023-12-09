@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
-	"github.com/vildan-valeev/gvk"
-
 	"log"
 	"strings"
+
+	"github.com/vildan-valeev/gvk"
 )
 
 type stateFn func(event *gvk.Update) stateFn
@@ -38,39 +38,20 @@ func (b *Bot) Update(update *gvk.Update) {
 }
 
 func (b *Bot) EntryHandler(update *gvk.Update) stateFn {
-	log.Printf("ПОЛУЧЕНО СООБЩЕНИЕ! %s \n", update.MessageNew.Message.Text)
 	if strings.HasPrefix(update.MessageNew.Message.Text, "ping") {
-		b.MessagesSend(
-			"pong",
-			&gvk.MessagesSendOptions{
-				UserID: b.chatID,
-				//PeerID:   update.MessageNew.Message.PeerID,
-				//RandomID: 1,
-			})
-
+		b.MessagesSend("pong", &gvk.MessagesSendOptions{UserID: b.chatID})
 		return b.handleNext
 	}
 
-	b.MessagesSend(
-		"not understand...",
-		&gvk.MessagesSendOptions{
-			UserID: b.chatID,
-			//PeerID:   update.MessageNew.Message.PeerID,
-			//RandomID: 2,
-		})
+	b.MessagesSend("not understand...", &gvk.MessagesSendOptions{UserID: b.chatID})
 
 	return b.EntryHandler
 }
 
 func (b *Bot) handleNext(update *gvk.Update) stateFn {
 	b.name = update.MessageNew.Message.Text
-	b.MessagesSend(
-		"pong again )))",
-		&gvk.MessagesSendOptions{
-			UserID: b.chatID,
-			//PeerID:   update.MessageNew.Message.PeerID,
-			//RandomID: 0,
-		})
+	b.MessagesSend("pong again )))", &gvk.MessagesSendOptions{
+		UserID: b.chatID})
 
 	return b.EntryHandler
 }
