@@ -1,6 +1,8 @@
 package gvk
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type APIError struct {
 	Code       int64  `json:"error_code"`    // todo const type
@@ -13,7 +15,7 @@ type APIError struct {
 
 // Error returns the error string.
 func (a APIError) Error() string {
-	return fmt.Sprintf("API error: %d %s", a.Code, a.Message)
+	return fmt.Sprintf("API error: %d %s. %s", a.Code, a.Message, a.Text)
 }
 
 func (a APIError) Base() APIError {

@@ -24,37 +24,39 @@ func NewAPI(token string) API {
 }
 
 // GetUpdates https://dev.vk.com/ru/api/bots-long-poll/getting-started
-func (a API) GetUpdates(opts *UpdateOptions) (res ResponseUpdate, err error) {
+func (a API) GetUpdates(opts *UpdateOptions) (res APIResponseUpdate, err error) {
 	var vals = make(url.Values)
 	vals.Set("access_token", a.token)
 	vals.Set("v", APIVersion)
 
-	return getUpdates(a.base, "", urlValues(opts))
+	return get[APIResponseUpdate](opts.Server, "", addValues(vals, opts))
 }
 
-func (a API) MessagesSend(text string, chatID int64, opts *MessagesSendOptions) (res ResponseMessagesSend, err error) {
+func (a API) MessagesSend(text string, chatID int64, opts *MessagesSendOptions) (res APIResponseMessagesSend, err error) {
 	var vals = make(url.Values)
 	vals.Set("message", text)
 	vals.Set("chat_id", strconv.FormatInt(chatID, 10))
-
-	return get[ResponseMessagesSend](a.base, "messages.send", addValues(vals, opts))
+	vals.Set("access_token", a.token)
+	vals.Set("v", APIVersion)
+	vals.Set("random_id", "0")
+	return get[APIResponseMessagesSend](a.base, "messages.send", addValues(vals, opts))
 }
 
 // MessagesGetLongPollServer https://dev.vk.com/ru/method/groups.getLongPollServer
-func (a API) GroupsGetLongPollServer(opts *GetLongPollServerOptions) (res ResponseGetLongPollServer, err error) {
+func (a API) GroupsGetLongPollServer(opts *GetLongPollServerOptions) (res APIResponseGetLongPollServer, err error) {
 	var vals = make(url.Values)
 	vals.Set("access_token", a.token)
 	vals.Set("v", APIVersion)
-	return get[ResponseGetLongPollServer](a.base, "groups.getLongPollServer", addValues(vals, opts))
+	return get[APIResponseGetLongPollServer](a.base, "groups.getLongPollServer", addValues(vals, opts))
 
 }
 
 // GroupsSetLongPollSettings https://dev.vk.com/ru/method/groups.setLongPollSettings
-func (a API) GroupsSetLongPollSettings(opts *SetLongPollSettingsOptions) (res ResponseSetLongPollSettings, err error) {
+func (a API) GroupsSetLongPollSettings(opts *SetLongPollSettingsOptions) (res APIResponseSetLongPollSettings, err error) {
 	var vals = make(url.Values)
 
 	vals.Set("access_token", a.token)
 	vals.Set("v", APIVersion)
-	return get[ResponseSetLongPollSettings](a.base, "groups.setLongPollSettings", addValues(vals, opts))
+	return get[APIResponseSetLongPollSettings](a.base, "groups.setLongPollSettings", addValues(vals, opts))
 
 }

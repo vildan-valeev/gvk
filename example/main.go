@@ -38,22 +38,26 @@ func (b *Bot) Update(update *gvk.Update) {
 }
 
 func (b *Bot) EntryHandler(update *gvk.Update) stateFn {
+	log.Printf("ПОЛУЧЕНО СООБЩЕНИЕ! %s \n", update.MessageNew.Message.Text)
 	if strings.HasPrefix(update.MessageNew.Message.Text, "ping") {
 		b.MessagesSend(
 			"pong",
 			update.MessageNew.Message.FromID,
 			&gvk.MessagesSendOptions{
-				UserID: update.MessageNew.Message.FromID,
-				PeerID: 0})
+				UserID:   b.chatID,
+				PeerID:   update.MessageNew.Message.PeerID,
+				RandomID: 0,
+			})
 
 		return b.handleNext
 	}
+
 	b.MessagesSend(
 		"not understand...",
 		update.MessageNew.Message.FromID,
 		&gvk.MessagesSendOptions{
-			UserID: update.MessageNew.Message.FromID,
-			PeerID: 0})
+			UserID: b.chatID,
+			PeerID: update.MessageNew.Message.PeerID})
 
 	return b.EntryHandler
 }

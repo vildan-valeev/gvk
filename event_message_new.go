@@ -13,7 +13,7 @@ type ClientInfo struct {
 type Message struct {
 	ID                    int            `json:"id"` // Message ID
 	Date                  int            `json:"date"`
-	PeerID                int            `json:"peer_id"` // Peer ID
+	PeerID                int64          `json:"peer_id"` // Peer ID
 	FromID                int64          `json:"from_id"`
 	Text                  string         `json:"text"` // Message text
 	RandomID              int            `json:"random_id"`

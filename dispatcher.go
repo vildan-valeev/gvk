@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"sync"
+	"time"
 )
 
 type Bot interface {
@@ -46,7 +47,6 @@ func NewDispatcher(token string, groupID int64, newBotFn NewBotFn) (*Dispatcher,
 	}
 
 	go d.listen()
-
 	return d, nil
 }
 
@@ -79,13 +79,13 @@ func (d *Dispatcher) PollOptions(dropPendingUpdates bool, opts UpdateOptions) er
 		//if isFirstRun {
 		//	opts.Timeout = 0
 		//}
-
-		response, err := d.api.GetUpdates(&opts)
+		time.Sleep(2 * time.Second)
+		result, err := d.api.GetUpdates(&opts)
 		if err != nil {
 			return err
 		}
 
-		err = d.check(response)
+		err = d.check(result)
 		if err != nil {
 			return err
 		}
@@ -95,7 +95,7 @@ func (d *Dispatcher) PollOptions(dropPendingUpdates bool, opts UpdateOptions) er
 		//		d.updates <- u
 		//	}
 		//}
-		for _, u := range response.Updates {
+		for _, u := range result.Updates {
 			d.updates <- u
 		}
 		//if l := len(response.Result); l > 0 {
@@ -133,11 +133,11 @@ func (d *Dispatcher) updateServer(updateTs bool) error {
 		return err
 	}
 
-	d.Key = serverSetting.Key
-	d.Server = serverSetting.Server
+	d.Key = serverSetting.Response.Key
+	d.Server = serverSetting.Response.Server
 
 	if updateTs {
-		d.Ts = serverSetting.Ts
+		d.Ts = serverSetting.Response.Ts
 	}
 
 	return nil
@@ -151,11 +151,11 @@ func (d *Dispatcher) autoSetting(ctx context.Context) error {
 		APIVersion: APIVersion,
 	}
 	_, err := d.api.GroupsSetLongPollSettings(&opts)
-
+	log.Println("SetLongPollSettings", err)
 	return err
 }
 
-func (d *Dispatcher) check(r ResponseUpdate) (err error) {
+func (d *Dispatcher) check(r APIResponseUpdate) (err error) {
 	switch r.Failed {
 	case 0:
 		d.Ts = r.Ts
@@ -166,7 +166,7 @@ func (d *Dispatcher) check(r ResponseUpdate) (err error) {
 	case 3:
 		err = d.updateServer(true)
 	default:
-		log.Println(err)
+		log.Println("Dispatcher update check", err)
 		//err = &APIError{failed: r.failed}
 	}
 	return nil

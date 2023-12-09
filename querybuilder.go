@@ -43,7 +43,7 @@ func scan(i any, v url.Values) url.Values {
 
 	for i := 0; i < e.NumField(); i++ {
 		fTag := e.Type().Field(i).Tag
-
+		// TODO: peer_id = 0 !!! is valid!
 		if name := fTag.Get("query"); name != "" && !e.Field(i).IsZero() {
 			v.Set(name, toString(e.Field(i)))
 		}

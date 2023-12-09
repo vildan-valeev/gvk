@@ -4,43 +4,58 @@ type Response interface {
 	Base() APIError
 }
 
-type ResponseMessagesSend struct {
-	APIError     // ошибка
-	Response int `json:"response,omitempty"`
+//---------------------------------------------------------------
+
+type APIResponseMessagesSend struct {
+	Error    APIError `json:"error,omitempty"`
+	Response int      `json:"response,omitempty"`
 }
 
-func (a ResponseMessagesSend) Base() APIError {
-	return a.APIError
+func (a APIResponseMessagesSend) Base() APIError {
+	return a.Error
+}
+
+//---------------------------------------------------------------
+
+type APIResponseGetLongPollServer struct {
+	Response ResponseGetLongPollServer `json:"response,omitempty"`
+	Error    APIError                  `json:"error,omitempty"`
 }
 
 type ResponseGetLongPollServer struct {
 	Key    string `json:"key,omitempty"`
 	Server string `json:"server,omitempty"`
 	Ts     string `json:"ts,omitempty"`
-	APIError
 }
 
-func (a ResponseGetLongPollServer) Base() APIError {
-	return a.APIError
+func (a APIResponseGetLongPollServer) Base() APIError {
+	return a.Error
+}
+
+// ---------------------------------------------------------------
+type APIResponseSetLongPollSettings struct {
+	Response ResponseSetLongPollSettings `json:"response,omitempty"`
+	Error    APIError                    `json:"error,omitempty"`
 }
 
 type ResponseSetLongPollSettings struct {
-	APIError
 }
 
-func (a ResponseSetLongPollSettings) Base() APIError {
-	return a.APIError
+func (a APIResponseSetLongPollSettings) Base() APIError {
+	return a.Error
 }
 
-type ResponseUpdate struct {
+//---------------------------------------------------------------
+
+type APIResponseUpdate struct {
 	Ts      string    `json:"ts,omitempty"`
 	Updates []*Update `json:"updates,omitempty"`
 	Failed  int64     `json:"failed,omitempty"` // ошибка
+	Error   APIError  `json:"error,omitempty"`
 }
 
-func (a ResponseUpdate) Base() APIError {
-	// TODO переделать
-	return APIError{Code: a.Failed}
+func (a APIResponseUpdate) Base() APIError {
+	return a.Error
 }
 
 type Update struct {
@@ -52,6 +67,8 @@ type Update struct {
 	MessageNew *MessageNew `json:"object"`
 	//TODO: добавить остальные объекты
 }
+
+//---------------------------------------------------------------
 
 // ChatID returns the ID of the chat the update is coming from.
 func (u Update) ChatID() int64 {

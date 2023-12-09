@@ -30,29 +30,7 @@ func get[T Response](base, endpoint string, vals url.Values) (res T, err error) 
 		return
 	}
 
-	return
-}
-
-func getUpdates(base, endpoint string, vals url.Values) (res ResponseUpdate, err error) {
-	url, err := url.JoinPath(base, endpoint)
-	if err != nil {
-		return res, err
-	}
-
-	if vals != nil {
-		if queries := vals.Encode(); queries != "" {
-			url = fmt.Sprintf("%s?%s", url, queries)
-		}
-	}
-
-	cnt, err := SendGetRequest(url)
-	if err != nil {
-		return res, err
-	}
-
-	if err = json.Unmarshal(cnt, &res); err != nil {
-		return
-	}
+	err = check(res)
 
 	return
 }
@@ -74,21 +52,8 @@ func SendGetRequest(url string) ([]byte, error) {
 	return data, nil
 }
 
-func check(r APIError) error {
-	//switch r.failed {
-	//case 0:
-	//	d.Ts = r.Ts
-	//case 1:
-	//	d.Ts = r.Ts
-	//case 2:
-	//	err = d.updateServer(false)
-	//case 3:
-	//	err = d.updateServer(true)
-	//default:
-	//	err = &LongPoolError{failed: r.failed}
-	//}
-	//return nil
+func check(r Response) error {
 	e := r.Base()
-	log.Println(e.Code, e.Message)
+	log.Println("API ERROR:", e.Code, e.Message)
 	return nil
 }
