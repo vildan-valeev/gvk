@@ -17,7 +17,7 @@ type bot struct {
 
 const (
 	groupID = 010101
-	token   = "token"
+	token   = "token here"
 )
 
 func newBot(chatID int64) gvk.Bot {
