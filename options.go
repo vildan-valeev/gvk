@@ -23,3 +23,8 @@ type SetLongPollSettingsOptions struct {
 	Enable     int64  `query:"enable"`
 	APIVersion string `query:"api_version"`
 }
+
+type UsersGetOptions struct {
+	UserIDS string `json:"user_ids"`
+	Fields  string `json:"fields"`
+}

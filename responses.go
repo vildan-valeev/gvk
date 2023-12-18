@@ -15,6 +15,32 @@ func (a APIResponseMessagesSend) Base() APIError {
 	return a.Error
 }
 
+//------------------------------------------------------------
+
+type APIResponseUsersGet struct {
+	Error    APIError `json:"error,omitempty"`
+	Response []User   `json:"response,omitempty"`
+}
+
+type User struct {
+	ID              int64       `json:"id"`
+	FirstName       string      `json:"first_name"`
+	LastName        string      `json:"last_name"`
+	ScreenName      string      `json:"screen_name"` // aka username
+	Deactivated     Deactivated `json:"deactivated"`
+	IsClosed        bool        `json:"is_closed"`
+	CanAccessClosed bool        `json:"can_access_closed"`
+}
+
+type Deactivated string
+
+const DeactivatedBanned Deactivated = "banned"
+const DeactivatedDeleted Deactivated = "deleted"
+
+func (a APIResponseUsersGet) Base() APIError {
+	return a.Error
+}
+
 //---------------------------------------------------------------
 
 type APIResponseGetLongPollServer struct {

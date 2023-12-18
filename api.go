@@ -33,15 +33,6 @@ func (a API) GetUpdates(opts *UpdateOptions) (res APIResponseUpdate, err error) 
 	return get[APIResponseUpdate](opts.Server, "", addValues(vals, opts))
 }
 
-func (a API) MessagesSend(text string, opts *MessagesSendOptions) (res APIResponseMessagesSend, err error) {
-	var vals = make(url.Values)
-	vals.Set("message", text)
-	vals.Set("access_token", a.token)
-	vals.Set("v", APIVersion)
-	vals.Set("random_id", strconv.Itoa(int(rand.Uint32())))
-	return get[APIResponseMessagesSend](a.base, "messages.send", addValues(vals, opts))
-}
-
 // MessagesGetLongPollServer https://dev.vk.com/ru/method/groups.getLongPollServer
 func (a API) GroupsGetLongPollServer(opts *GetLongPollServerOptions) (res APIResponseGetLongPollServer, err error) {
 	var vals = make(url.Values)
@@ -59,4 +50,22 @@ func (a API) GroupsSetLongPollSettings(opts *SetLongPollSettingsOptions) (res AP
 	vals.Set("v", APIVersion)
 	return get[APIResponseSetLongPollSettings](a.base, "groups.setLongPollSettings", addValues(vals, opts))
 
+}
+
+func (a API) MessagesSend(text string, opts *MessagesSendOptions) (res APIResponseMessagesSend, err error) {
+	var vals = make(url.Values)
+	vals.Set("message", text)
+	vals.Set("access_token", a.token)
+	vals.Set("v", APIVersion)
+	vals.Set("random_id", strconv.Itoa(int(rand.Uint32())))
+	return get[APIResponseMessagesSend](a.base, "messages.send", addValues(vals, opts))
+}
+
+// UsersGet https://dev.vk.com/ru/method/users.get
+func (a API) UsersGet(opts *UsersGetOptions) (res APIResponseUsersGet, err error) {
+	var vals = make(url.Values)
+	vals.Set("access_token", a.token)
+	vals.Set("v", APIVersion)
+	vals.Set("random_id", strconv.Itoa(int(rand.Uint32())))
+	return get[APIResponseUsersGet](a.base, "users.get", addValues(vals, opts))
 }
