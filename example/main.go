@@ -18,11 +18,6 @@ type Bot struct {
 	gvk.API
 }
 
-const (
-	groupID = 1234567
-	token   = "token here"
-)
-
 func newBot(chatID int64) gvk.Bot {
 	b := &Bot{
 		chatID: chatID,
