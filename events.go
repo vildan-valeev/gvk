@@ -1,43 +1,49 @@
 package gvk
 
+import "encoding/json"
+
 // MessageNew https://dev.vk.com/ru/api/community-events/json-schema#Сообщения
 type MessageNew struct {
 	Message    Message    `json:"message"`
 	ClientInfo ClientInfo `json:"client_info"`
 }
 
-//// MessageReplyObject struct.
-//type MessageReplyObject object.MessagesMessage
+// MessageReply struct.
+type MessageReply Message
+
+// // MessageEditObject struct.
+// type MessageEditObject object.MessagesMessage
 //
-//// MessageEditObject struct.
-//type MessageEditObject object.MessagesMessage
+// // MessageAllowObject struct.
 //
-//// MessageAllowObject struct.
-//type MessageAllowObject struct {
-//	UserID int    `json:"user_id"`
-//	Key    string `json:"key"`
-//}
+//	type MessageAllowObject struct {
+//		UserID int    `json:"user_id"`
+//		Key    string `json:"key"`
+//	}
 //
-//// MessageDenyObject struct.
-//type MessageDenyObject struct {
-//	UserID int `json:"user_id"`
-//}
+// // MessageDenyObject struct.
 //
-//// MessageTypingStateObject struct.
-//type MessageTypingStateObject struct {
-//	State  string `json:"state"`
-//	FromID int    `json:"from_id"`
-//	ToID   int    `json:"to_id"`
-//}
+//	type MessageDenyObject struct {
+//		UserID int `json:"user_id"`
+//	}
 //
-//// MessageEventObject struct.
-//type MessageEventObject struct {
-//	UserID                int             `json:"user_id"`
-//	PeerID                int             `json:"peer_id"`
-//	EventID               string          `json:"event_id"`
-//	Payload               json.RawMessage `json:"payload"`
-//	ConversationMessageID int             `json:"conversation_message_id"`
-//}
+// // MessageTypingStateObject struct.
+//
+//	type MessageTypingStateObject struct {
+//		State  string `json:"state"`
+//		FromID int    `json:"from_id"`
+//		ToID   int    `json:"to_id"`
+//	}
+//
+// // MessageEventObject struct.
+type MessageEvent struct {
+	UserID                int64           `json:"user_id"`
+	PeerID                int64           `json:"peer_id"`
+	EventID               string          `json:"event_id"`
+	Payload               json.RawMessage `json:"payload"`
+	ConversationMessageID int64           `json:"conversation_message_id"`
+}
+
 //
 //// PhotoNewObject struct.
 //type PhotoNewObject object.PhotosPhoto

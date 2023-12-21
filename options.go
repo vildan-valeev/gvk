@@ -13,7 +13,8 @@ type GetLongPollServerOptions struct {
 }
 
 type MessagesSendOptions struct {
-	UserID int64 `query:"user_id"`
+	UserID   int64    `query:"user_id"`
+	Keyboard Keyboard `query:"keyboard"`
 	//RandomID int32 `query:"random_id"`
 	//PeerID   int64 `query:"peer_id"`
 }
@@ -25,6 +26,13 @@ type SetLongPollSettingsOptions struct {
 }
 
 type UsersGetOptions struct {
-	UserIDS string `json:"user_ids"`
-	Fields  string `json:"fields"`
+	UserIDS string `query:"user_ids"`
+	Fields  string `query:"fields"`
+}
+
+type MessageEventAnswerOptions struct {
+	EventID   string `query:"event_id"`
+	UserID    int64  `query:"user_id"`
+	PeerID    int64  `query:"peer_id"`
+	EventData string `query:"text"`
 }

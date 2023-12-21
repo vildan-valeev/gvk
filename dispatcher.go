@@ -75,6 +75,11 @@ func (d *Dispatcher) PollOptions(dropPendingUpdates bool) error {
 			return err
 		}
 
+		updates, err := result.Updates.UnmarshalCustom()
+		if err != nil {
+			return err
+		}
+
 		err = d.check(result)
 		if err != nil {
 			return err
@@ -85,7 +90,9 @@ func (d *Dispatcher) PollOptions(dropPendingUpdates bool) error {
 		//		d.updates <- u
 		//	}
 		//}
-		for _, u := range result.Updates {
+
+		for _, u := range updates {
+			fmt.Println("UPDATES!", u.Object.MessageNew)
 			d.updates <- u
 		}
 		//if l := len(response.Result); l > 0 {

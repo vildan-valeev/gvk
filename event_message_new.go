@@ -83,17 +83,39 @@ type Keyboard struct {
 
 type Button struct {
 	Action ButtonAction `json:"action"`
-	Color  string       `json:"color,omitempty"` // Button color
+	Color  ButtonColor  `json:"color,omitempty"` // Button color
 }
+
+type ButtonColor string
+
+const (
+	ButtonColorPrimary   ButtonColor = "primary"
+	ButtonColorSecondary ButtonColor = "secondary"
+	ButtonColorNegative  ButtonColor = "negative"
+	ButtonColorPositive  ButtonColor = "positive"
+)
+
 type ButtonAction struct {
+	Type    ButtonType `json:"type"`              // Button type
+	Label   string     `json:"label,omitempty"`   // Label for button
+	Payload string     `json:"payload,omitempty"` // Additional data sent along with message for developer convenience
+
 	AppID   int    `json:"app_id,omitempty"`   // Fragment value in app link like vk.com/app{app_id}_-654321#hash
 	Hash    string `json:"hash,omitempty"`     // Fragment value in app link like vk.com/app123456_-654321#{hash}
-	Label   string `json:"label,omitempty"`    // Label for button
 	OwnerID int    `json:"owner_id,omitempty"` // Fragment value in app link like vk.com/app123456_{owner_id}#hash
-	Payload string `json:"payload,omitempty"`  // Additional data sent along with message for developer convenience
-	Type    string `json:"type"`               // Button type
 	Link    string `json:"link,omitempty"`     // Link URL
 }
+
+type ButtonType string
+
+const (
+	ButtonTypeText     ButtonType = "text"
+	ButtonTypeOpenLink ButtonType = "open_link"
+	ButtonTypeLocation ButtonType = "location"
+	ButtonTypeVkPay    ButtonType = "vkpay"
+	ButtonTypeOpenApp  ButtonType = "open_app"
+	ButtonTypeCallBack ButtonType = "callback"
+)
 
 // BaseMessageGeo struct.
 type BaseMessageGeo struct {

@@ -61,6 +61,15 @@ func (a API) MessagesSend(text string, opts *MessagesSendOptions) (res APIRespon
 	return get[APIResponseMessagesSend](a.base, "messages.send", addValues(vals, opts))
 }
 
+func (a API) MessagesSendMessageEventAnswer(text string, opts *MessageEventAnswerOptions) (res APIResponseMessageEventAnswer, err error) {
+	var vals = make(url.Values)
+	vals.Set("message", text)
+	vals.Set("access_token", a.token)
+	vals.Set("v", APIVersion)
+	vals.Set("random_id", strconv.Itoa(int(rand.Uint32())))
+	return get[APIResponseMessageEventAnswer](a.base, "messages.sendMessageEventAnswer", addValues(vals, opts))
+}
+
 // UsersGet https://dev.vk.com/ru/method/users.get
 func (a API) UsersGet(opts *UsersGetOptions) (res APIResponseUsersGet, err error) {
 	var vals = make(url.Values)

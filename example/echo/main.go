@@ -8,6 +8,11 @@ import (
 	"github.com/vildan-valeev/gvk"
 )
 
+const (
+	groupID = 194299208
+	token   = "b30fae3f8d488e20cdbe041cbec9a0aa62e7c52e6107f97f97a9fd9007abe32223e1373cce590bfabf374"
+)
+
 type stateFn func(event *gvk.Update) stateFn
 
 type Bot struct {
@@ -33,7 +38,7 @@ func (b *Bot) Update(update *gvk.Update) {
 }
 
 func (b *Bot) EntryHandler(update *gvk.Update) stateFn {
-	if strings.HasPrefix(update.MessageNew.Message.Text, "ping") {
+	if strings.HasPrefix(update.Object.MessageNew.Message.Text, "ping") {
 		b.MessagesSend("pong", &gvk.MessagesSendOptions{UserID: b.chatID})
 		return b.handleNext
 	}
@@ -44,9 +49,10 @@ func (b *Bot) EntryHandler(update *gvk.Update) stateFn {
 }
 
 func (b *Bot) handleNext(update *gvk.Update) stateFn {
-	b.name = update.MessageNew.Message.Text
+
 	b.MessagesSend("pong again )))", &gvk.MessagesSendOptions{
-		UserID: b.chatID})
+		UserID: b.chatID,
+	})
 
 	return b.EntryHandler
 }

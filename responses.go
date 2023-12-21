@@ -1,5 +1,10 @@
 package gvk
 
+import (
+	"encoding/json"
+	"fmt"
+)
+
 type Response interface {
 	Base() APIError
 }
@@ -15,7 +20,18 @@ func (a APIResponseMessagesSend) Base() APIError {
 	return a.Error
 }
 
-//------------------------------------------------------------
+// ------------------------------------------------------------------
+
+type APIResponseMessageEventAnswer struct {
+	Error    APIError `json:"error,omitempty"`
+	Response int      `json:"response,omitempty"`
+}
+
+func (a APIResponseMessageEventAnswer) Base() APIError {
+	return a.Error
+}
+
+// ------------------------------------------------------------
 
 type APIResponseUsersGet struct {
 	Error    APIError `json:"error,omitempty"`
@@ -59,6 +75,7 @@ func (a APIResponseGetLongPollServer) Base() APIError {
 }
 
 // ---------------------------------------------------------------
+
 type APIResponseSetLongPollSettings struct {
 	Response ResponseSetLongPollSettings `json:"response,omitempty"`
 	Error    APIError                    `json:"error,omitempty"`
@@ -74,33 +91,50 @@ func (a APIResponseSetLongPollSettings) Base() APIError {
 //---------------------------------------------------------------
 
 type APIResponseUpdate struct {
-	Ts      string    `json:"ts,omitempty"`
-	Updates []*Update `json:"updates,omitempty"`
-	Failed  int64     `json:"failed,omitempty"` // ошибка
-	Error   APIError  `json:"error,omitempty"`
+	Ts string `json:"ts,omitempty"`
+	//Updates []*Update `json:"updates,omitempty"`
+	Updates RawUpdates `json:"updates,omitempty"`
+	Failed  int64      `json:"failed,omitempty"` // ошибка
+	Error   APIError   `json:"error,omitempty"`
 }
 
 func (a APIResponseUpdate) Base() APIError {
 	return a.Error
 }
 
-type Update struct {
+type TypeSwitch struct {
 	Type    EventType `json:"type"`
 	GroupID int       `json:"group_id"`
 	EventID string    `json:"event_id"`
 	V       string    `json:"v"`
+}
 
-	MessageNew *MessageNew `json:"object"`
-	//TODO: добавить остальные объекты
+type RawUpdates []json.RawMessage
+
+type Updates []*Update
+
+type Update struct {
+	TypeSwitch
+
+	Object Object `json:"object"`
+}
+
+type Object struct {
+	*MessageNew
+	*MessageReply
+	*MessageEvent
+	// TODO: добавить остальные объекты Events
 }
 
 //---------------------------------------------------------------
 
 // ChatID returns the ID of the chat the update is coming from.
-func (u Update) ChatID() int64 {
+func (u *Update) ChatID() int64 {
 	switch {
-	case u.MessageNew != nil:
-		return u.MessageNew.Message.FromID
+	case u.Object.MessageNew != nil:
+		return u.Object.MessageNew.Message.FromID
+	case u.Object.MessageEvent != nil:
+		return u.Object.MessageEvent.UserID
 	//case u.EditedMessage != nil:
 	//	return u.EditedMessage.Chat.ID
 	//case u.ChannelPost != nil:
@@ -128,65 +162,109 @@ func (u Update) ChatID() int64 {
 	}
 }
 
+func (a RawUpdates) UnmarshalCustom() (Updates, error) {
+	if len(a) > 0 {
+		fmt.Println("COUNT UPDATES", len(a))
+	}
+
+	var updates Updates
+	for _, row := range a {
+		update := Update{}
+
+		if err := json.Unmarshal(row, &update); err != nil {
+			return updates, err
+		}
+		updates = append(updates, &update)
+	}
+
+	return updates, nil
+}
+
+func (u *Update) UnmarshalJSON(data []byte) error {
+	var temp struct {
+		TypeSwitch
+		Object json.RawMessage `json:"object"`
+	}
+	if err := json.Unmarshal(data, &temp); err != nil {
+		return err
+	}
+	u.TypeSwitch = temp.TypeSwitch
+
+	switch u.Type {
+	case EventMessageNew:
+		u.Object.MessageNew = &MessageNew{}
+		return json.Unmarshal(temp.Object, u.Object.MessageNew)
+	case EventMessageReply:
+		u.Object.MessageReply = &MessageReply{}
+		return json.Unmarshal(temp.Object, u.Object.MessageReply)
+	case EventMessageEvent:
+		u.Object.MessageEvent = &MessageEvent{}
+		return json.Unmarshal(temp.Object, u.Object.MessageEvent)
+	default:
+		return fmt.Errorf("unrecognized type value %q", u.Type)
+	}
+
+}
+
 // EventType type.
 type EventType string
 
 // EventType list.
 const (
-	EventConfirmation                  = "confirmation"
-	EventMessageNew                    = "message_new"
-	EventMessageReply                  = "message_reply"
-	EventMessageEdit                   = "message_edit"
-	EventMessageAllow                  = "message_allow"
-	EventMessageDeny                   = "message_deny"
-	EventMessageTypingState            = "message_typing_state"
-	EventMessageEvent                  = "message_event"
-	EventPhotoNew                      = "photo_new"
-	EventPhotoCommentNew               = "photo_comment_new"
-	EventPhotoCommentEdit              = "photo_comment_edit"
-	EventPhotoCommentRestore           = "photo_comment_restore"
-	EventPhotoCommentDelete            = "photo_comment_delete"
-	EventAudioNew                      = "audio_new"
-	EventVideoNew                      = "video_new"
-	EventVideoCommentNew               = "video_comment_new"
-	EventVideoCommentEdit              = "video_comment_edit"
-	EventVideoCommentRestore           = "video_comment_restore"
-	EventVideoCommentDelete            = "video_comment_delete"
-	EventWallPostNew                   = "wall_post_new"
-	EventWallRepost                    = "wall_repost"
-	EventWallReplyNew                  = "wall_reply_new"
-	EventWallReplyEdit                 = "wall_reply_edit"
-	EventWallReplyRestore              = "wall_reply_restore"
-	EventWallReplyDelete               = "wall_reply_delete"
-	EventBoardPostNew                  = "board_post_new"
-	EventBoardPostEdit                 = "board_post_edit"
-	EventBoardPostRestore              = "board_post_restore"
-	EventBoardPostDelete               = "board_post_delete"
-	EventMarketCommentNew              = "market_comment_new"
-	EventMarketCommentEdit             = "market_comment_edit"
-	EventMarketCommentRestore          = "market_comment_restore"
-	EventMarketCommentDelete           = "market_comment_delete"
-	EventMarketOrderNew                = "market_order_new"
-	EventMarketOrderEdit               = "market_order_edit"
-	EventGroupLeave                    = "group_leave"
-	EventGroupJoin                     = "group_join"
-	EventUserBlock                     = "user_block"
-	EventUserUnblock                   = "user_unblock"
-	EventPollVoteNew                   = "poll_vote_new"
-	EventGroupOfficersEdit             = "group_officers_edit"
-	EventGroupChangeSettings           = "group_change_settings"
-	EventGroupChangePhoto              = "group_change_photo"
-	EventVkpayTransaction              = "vkpay_transaction"
-	EventLeadFormsNew                  = "lead_forms_new"
-	EventAppPayload                    = "app_payload"
-	EventMessageRead                   = "message_read"
-	EventLikeAdd                       = "like_add"
-	EventLikeRemove                    = "like_remove"
-	EventDonutSubscriptionCreate       = "donut_subscription_create"
-	EventDonutSubscriptionProlonged    = "donut_subscription_prolonged"
-	EventDonutSubscriptionExpired      = "donut_subscription_expired"
-	EventDonutSubscriptionCancelled    = "donut_subscription_cancelled"
-	EventDonutSubscriptionPriceChanged = "donut_subscription_price_changed"
-	EventDonutMoneyWithdraw            = "donut_money_withdraw"
-	EventDonutMoneyWithdrawError       = "donut_money_withdraw_error"
+	EventConfirmation                            = "confirmation"
+	EventMessageNew                    EventType = "message_new"
+	EventMessageReply                  EventType = "message_reply"
+	EventMessageEdit                             = "message_edit"
+	EventMessageAllow                            = "message_allow"
+	EventMessageDeny                             = "message_deny"
+	EventMessageTypingState                      = "message_typing_state"
+	EventMessageEvent                  EventType = "message_event"
+	EventPhotoNew                                = "photo_new"
+	EventPhotoCommentNew                         = "photo_comment_new"
+	EventPhotoCommentEdit                        = "photo_comment_edit"
+	EventPhotoCommentRestore                     = "photo_comment_restore"
+	EventPhotoCommentDelete                      = "photo_comment_delete"
+	EventAudioNew                                = "audio_new"
+	EventVideoNew                                = "video_new"
+	EventVideoCommentNew                         = "video_comment_new"
+	EventVideoCommentEdit                        = "video_comment_edit"
+	EventVideoCommentRestore                     = "video_comment_restore"
+	EventVideoCommentDelete                      = "video_comment_delete"
+	EventWallPostNew                             = "wall_post_new"
+	EventWallRepost                              = "wall_repost"
+	EventWallReplyNew                            = "wall_reply_new"
+	EventWallReplyEdit                           = "wall_reply_edit"
+	EventWallReplyRestore                        = "wall_reply_restore"
+	EventWallReplyDelete                         = "wall_reply_delete"
+	EventBoardPostNew                            = "board_post_new"
+	EventBoardPostEdit                           = "board_post_edit"
+	EventBoardPostRestore                        = "board_post_restore"
+	EventBoardPostDelete                         = "board_post_delete"
+	EventMarketCommentNew                        = "market_comment_new"
+	EventMarketCommentEdit                       = "market_comment_edit"
+	EventMarketCommentRestore                    = "market_comment_restore"
+	EventMarketCommentDelete                     = "market_comment_delete"
+	EventMarketOrderNew                          = "market_order_new"
+	EventMarketOrderEdit                         = "market_order_edit"
+	EventGroupLeave                              = "group_leave"
+	EventGroupJoin                               = "group_join"
+	EventUserBlock                               = "user_block"
+	EventUserUnblock                             = "user_unblock"
+	EventPollVoteNew                             = "poll_vote_new"
+	EventGroupOfficersEdit                       = "group_officers_edit"
+	EventGroupChangeSettings                     = "group_change_settings"
+	EventGroupChangePhoto                        = "group_change_photo"
+	EventVkpayTransaction                        = "vkpay_transaction"
+	EventLeadFormsNew                            = "lead_forms_new"
+	EventAppPayload                              = "app_payload"
+	EventMessageRead                             = "message_read"
+	EventLikeAdd                                 = "like_add"
+	EventLikeRemove                              = "like_remove"
+	EventDonutSubscriptionCreate                 = "donut_subscription_create"
+	EventDonutSubscriptionProlonged              = "donut_subscription_prolonged"
+	EventDonutSubscriptionExpired                = "donut_subscription_expired"
+	EventDonutSubscriptionCancelled              = "donut_subscription_cancelled"
+	EventDonutSubscriptionPriceChanged           = "donut_subscription_price_changed"
+	EventDonutMoneyWithdraw                      = "donut_money_withdraw"
+	EventDonutMoneyWithdrawError                 = "donut_money_withdraw_error"
 )
