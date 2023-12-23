@@ -49,7 +49,15 @@ func (a API) GroupsSetLongPollSettings(opts *SetLongPollSettingsOptions) (res AP
 	vals.Set("access_token", a.token)
 	vals.Set("v", APIVersion)
 	return get[APIResponseSetLongPollSettings](a.base, "groups.setLongPollSettings", addValues(vals, opts))
+}
 
+// GroupsSetLongPollSettings https://dev.vk.com/ru/method/groups.isMember
+func (a API) GroupsIsMember(opts *GroupsIsMemberOptions) (res APIResponseGroupsIsMember, err error) {
+	var vals = make(url.Values)
+
+	vals.Set("access_token", a.token)
+	vals.Set("v", APIVersion)
+	return get[APIResponseGroupsIsMember](a.base, "groups.isMember", addValues(vals, opts))
 }
 
 func (a API) MessagesSend(text string, opts *MessagesSendOptions) (res APIResponseMessagesSend, err error) {

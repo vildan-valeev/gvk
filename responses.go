@@ -90,6 +90,17 @@ func (a APIResponseSetLongPollSettings) Base() APIError {
 
 //---------------------------------------------------------------
 
+type APIResponseGroupsIsMember struct {
+	Response int64    `json:"response,omitempty"`
+	Error    APIError `json:"error,omitempty"`
+}
+
+func (a APIResponseGroupsIsMember) Base() APIError {
+	return a.Error
+}
+
+// -------------------------
+
 type APIResponseUpdate struct {
 	Ts string `json:"ts,omitempty"`
 	//Updates []*Update `json:"updates,omitempty"`

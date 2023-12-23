@@ -36,3 +36,10 @@ type MessageEventAnswerOptions struct {
 	PeerID    int64  `query:"peer_id"`
 	EventData string `query:"text"`
 }
+
+type GroupsIsMemberOptions struct {
+	GroupID  int64  `query:"group_id"`
+	UserID   int64  `query:"user_id"`
+	UserIDs  string `query:"user_ids"`
+	Extended int64  `query:"extended"`
+}
