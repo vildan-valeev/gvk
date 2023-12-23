@@ -47,6 +47,23 @@ func NewDispatcher(token string, groupID int64, newBotFn NewBotFn) (*Dispatcher,
 	return d, nil
 }
 
+// DelSession deletes the Bot instance, seen as a session, from the
+// map with all of them.
+func (d *Dispatcher) DelSession(chatID int64) {
+	d.mu.Lock()
+	delete(d.sessionMap, chatID)
+	d.mu.Unlock()
+}
+
+// AddSession allows to arbitrarily create a new Bot instance.
+func (d *Dispatcher) AddSession(chatID int64) {
+	d.mu.Lock()
+	if _, isIn := d.sessionMap[chatID]; !isIn {
+		d.sessionMap[chatID] = d.newBot(chatID)
+	}
+	d.mu.Unlock()
+}
+
 // Poll is a wrapper function for PollOptions.
 func (d *Dispatcher) Poll() error {
 
