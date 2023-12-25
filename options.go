@@ -13,10 +13,29 @@ type GetLongPollServerOptions struct {
 }
 
 type MessagesSendOptions struct {
+	Message  string   `query:"message"`
 	UserID   int64    `query:"user_id"`
 	Keyboard Keyboard `query:"keyboard"`
 	//RandomID int32 `query:"random_id"`
 	//PeerID   int64 `query:"peer_id"`
+}
+
+type MessagesEditOptions struct {
+	MessageID int64  `query:"message_id"`
+	Message   string `query:"message"`
+	PeerID    int64  `query:"peer_id"`
+
+	Lat                   string   `query:"lat"`  // float64 as string: from -90 to 90
+	Long                  string   `query:"long"` // float64 as string: from -90 to 90
+	Attachment            string   `query:"attachment"`
+	KeepForwardMessages   int64    `query:"keep_forward_messages"`
+	KeepSnippets          int64    `query:"keep_snippets"`
+	GroupID               int64    `query:"group_id"`
+	DontParseLinks        int64    `query:"dont_parse_links"`
+	DisableMentions       int64    `query:"disable_mentions"`
+	ConversationMessageID int64    `query:"conversation_message_id"`
+	Template              string   `query:"template"`
+	Keyboard              Keyboard `query:"keyboard"`
 }
 
 type SetLongPollSettingsOptions struct {

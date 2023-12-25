@@ -20,6 +20,17 @@ func (a APIResponseMessagesSend) Base() APIError {
 	return a.Error
 }
 
+//---------------------------------------------------------------
+
+type APIResponseMessagesEdit struct {
+	Error    APIError `json:"error,omitempty"`
+	Response int      `json:"response,omitempty"`
+}
+
+func (a APIResponseMessagesEdit) Base() APIError {
+	return a.Error
+}
+
 // ------------------------------------------------------------------
 
 type APIResponseMessageEventAnswer struct {
