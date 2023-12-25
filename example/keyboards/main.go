@@ -51,8 +51,9 @@ func (b *Bot) EntryHandler(update *gvk.Update) stateFn {
 			},
 		})
 
-		b.MessagesSend("pong", &gvk.MessagesSendOptions{
-			UserID: b.chatID,
+		b.MessagesSend(&gvk.MessagesSendOptions{
+			Message: "pong",
+			UserID:  b.chatID,
 			Keyboard: gvk.Keyboard{
 				Inline:  false,
 				Buttons: buttons,
@@ -61,7 +62,7 @@ func (b *Bot) EntryHandler(update *gvk.Update) stateFn {
 		return b.handleNext
 	}
 
-	b.MessagesSend("not understand...", &gvk.MessagesSendOptions{UserID: b.chatID})
+	b.MessagesSend(&gvk.MessagesSendOptions{Message: "not understand...", UserID: b.chatID})
 
 	return b.EntryHandler
 }
@@ -80,8 +81,9 @@ func (b *Bot) handleNext(update *gvk.Update) stateFn {
 		},
 	})
 
-	b.MessagesSend("pong again )))", &gvk.MessagesSendOptions{
-		UserID: b.chatID,
+	b.MessagesSend(&gvk.MessagesSendOptions{
+		Message: "pong again )))",
+		UserID:  b.chatID,
 		Keyboard: gvk.Keyboard{
 			Inline:  true,
 			Buttons: buttons,
@@ -93,8 +95,9 @@ func (b *Bot) handleNext(update *gvk.Update) stateFn {
 
 func (b *Bot) hanleCallback(update *gvk.Update) stateFn {
 	s := string(update.Object.MessageEvent.Payload)
-	b.MessagesSend(fmt.Sprintf("Callback received %s", s), &gvk.MessagesSendOptions{
-		UserID: b.chatID,
+	b.MessagesSend(&gvk.MessagesSendOptions{
+		Message: fmt.Sprintf("Callback received %s", s),
+		UserID:  b.chatID,
 	})
 
 	return b.EntryHandler

@@ -39,19 +39,19 @@ func (b *Bot) Update(update *gvk.Update) {
 
 func (b *Bot) EntryHandler(update *gvk.Update) stateFn {
 	if strings.HasPrefix(update.Object.MessageNew.Message.Text, "ping") {
-		b.MessagesSend("pong", &gvk.MessagesSendOptions{UserID: b.chatID})
+		b.MessagesSend(&gvk.MessagesSendOptions{Message: "pong", UserID: b.chatID})
 		return b.handleNext
 	}
 
-	b.MessagesSend("not understand...", &gvk.MessagesSendOptions{UserID: b.chatID})
+	b.MessagesSend(&gvk.MessagesSendOptions{Message: "not understand...", UserID: b.chatID})
 
 	return b.EntryHandler
 }
 
 func (b *Bot) handleNext(update *gvk.Update) stateFn {
-
-	b.MessagesSend("pong again )))", &gvk.MessagesSendOptions{
-		UserID: b.chatID,
+	b.MessagesSend(&gvk.MessagesSendOptions{
+		Message: "pong again )))",
+		UserID:  b.chatID,
 	})
 
 	return b.EntryHandler
