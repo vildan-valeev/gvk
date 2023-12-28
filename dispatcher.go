@@ -71,22 +71,11 @@ func (d *Dispatcher) Poll() error {
 }
 
 func (d *Dispatcher) PollOptions(dropPendingUpdates bool) error {
-	//var (
-	//	timeout    = d.Wait
-	//	isFirstRun = true //TODO: сброс апдейтов
-	//)
-
-	//// deletes webhook if present to run in long polling mode
-	//if _, err := d.api.DeleteWebhook(dropPendingUpdates); err != nil {
-	//	return err
-	//}
-
 	for {
 		//TODO: сброс апдейтов
-		//if isFirstRun {
-		//	opts.Timeout = 0
-		//}
-		time.Sleep(2 * time.Second)
+
+		time.Sleep(100 * time.Millisecond)
+
 		result, err := d.api.GetUpdates(&d.opts)
 		if err != nil {
 			return err
@@ -101,25 +90,11 @@ func (d *Dispatcher) PollOptions(dropPendingUpdates bool) error {
 		if err != nil {
 			return err
 		}
-		//
-		//if !dropPendingUpdates || !isFirstRun {
-		//	for _, u := range response.Result {
-		//		d.updates <- u
-		//	}
-		//}
 
 		for _, u := range updates {
-			fmt.Println("UPDATES!", u.Object.MessageNew)
 			d.updates <- u
 		}
-		//if l := len(response.Result); l > 0 {
-		//	opts.Offset = response.Result[l-1].ID + 1
-		//}
-		//
-		//if isFirstRun {
-		//	isFirstRun = false
-		//	opts.Timeout = timeout
-		//}
+
 	}
 }
 
@@ -171,7 +146,6 @@ func (d *Dispatcher) autoSetting(ctx context.Context) error {
 		APIVersion: APIVersion,
 	}
 	_, err := d.api.GroupsSetLongPollSettings(&opts)
-	log.Println("SetLongPollSettings", err)
 	return err
 }
 

@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"net/url"
 )
@@ -20,13 +19,13 @@ func get[T Response](base, endpoint string, vals url.Values) (res T, err error) 
 			url = fmt.Sprintf("%s?%s", url, queries)
 		}
 	}
-	log.Printf("Request URL: %s", url)
+	//log.Printf("Request URL: %s", url)
 	cnt, err := SendGetRequest(url)
 	if err != nil {
 		return res, err
 	}
-	log.Printf("Response Error: %v", err)
-	log.Printf("Response BODY: %s", string(cnt))
+	//log.Printf("Response Error: %v", err)
+	//log.Printf("Response BODY: %s", string(cnt))
 	if err = json.Unmarshal(cnt, &res); err != nil {
 		return
 	}
