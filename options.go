@@ -13,11 +13,11 @@ type GetLongPollServerOptions struct {
 }
 
 type MessagesSendOptions struct {
-	Message  string   `query:"message"`
-	UserID   int64    `query:"user_id"`
-	Keyboard Keyboard `query:"keyboard"`
-	//RandomID int32 `query:"random_id"`
-	//PeerID   int64 `query:"peer_id"`
+	Message         string   `query:"message"`
+	UserID          int64    `query:"user_id"`
+	Keyboard        Keyboard `query:"keyboard"`
+	DontParseLinks  int64    `json:"dont_parse_links"`
+	DisableMentions int64    `json:"disable_mentions"`
 }
 
 type MessagesEditOptions struct {
