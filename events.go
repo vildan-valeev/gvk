@@ -11,9 +11,9 @@ type MessageNew struct {
 // MessageReply struct.
 type MessageReply Message
 
-// // MessageEditObject struct.
-// type MessageEditObject object.MessagesMessage
-//
+// MessageEdit struct.
+type MessageEdit Message
+
 // // MessageAllowObject struct.
 //
 //	type MessageAllowObject struct {
