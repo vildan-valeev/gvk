@@ -4,6 +4,12 @@ Library with states, goroutines
 
 ## Example
 ```go
+
+const (
+	groupID = 1234568
+	token   = "token"
+)
+
 type stateFn func(event *gvk.Update) stateFn
 
 type Bot struct {
@@ -13,11 +19,6 @@ type Bot struct {
 
 	gvk.API
 }
-
-const (
-	groupID = 1234567
-	token   = "token here"
-)
 
 func newBot(chatID int64) gvk.Bot {
 	b := &Bot{
@@ -34,20 +35,21 @@ func (b *Bot) Update(update *gvk.Update) {
 }
 
 func (b *Bot) EntryHandler(update *gvk.Update) stateFn {
-	if strings.HasPrefix(update.MessageNew.Message.Text, "ping") {
-		b.MessagesSend("pong", &gvk.MessagesSendOptions{UserID: b.chatID})
+	if strings.HasPrefix(update.Object.MessageNew.Message.Text, "ping") {
+		b.MessagesSend(&gvk.MessagesSendOptions{Message: "pong", UserID: b.chatID})
 		return b.handleNext
 	}
 
-	b.MessagesSend("not understand...", &gvk.MessagesSendOptions{UserID: b.chatID,})
+	b.MessagesSend(&gvk.MessagesSendOptions{Message: "not understand...", UserID: b.chatID})
 
 	return b.EntryHandler
 }
 
 func (b *Bot) handleNext(update *gvk.Update) stateFn {
-	b.name = update.MessageNew.Message.Text
-	b.MessagesSend("pong again )))", &gvk.MessagesSendOptions{
-		UserID: b.chatID,})
+	b.MessagesSend(&gvk.MessagesSendOptions{
+		Message: "pong again )))",
+		UserID:  b.chatID,
+	})
 
 	return b.EntryHandler
 }

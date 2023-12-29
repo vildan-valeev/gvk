@@ -16,8 +16,8 @@ type MessagesSendOptions struct {
 	Message         string   `query:"message"`
 	UserID          int64    `query:"user_id"`
 	Keyboard        Keyboard `query:"keyboard"`
-	DontParseLinks  int64    `json:"dont_parse_links"`
-	DisableMentions int64    `json:"disable_mentions"`
+	DontParseLinks  int64    `json:"dont_parse_links"` // 1 - true, 0 - false
+	DisableMentions int64    `json:"disable_mentions"` // 1 - true, 0 - false
 }
 
 type MessagesEditOptions struct {
