@@ -54,7 +54,12 @@ func SendGetRequest(url string) ([]byte, error) {
 }
 
 func check(r Response) error {
-	//e := r.Base()
-	//log.Println("API ERROR:", e.Code, e.Message)
-	return nil
+	e := r.Base()
+	switch e.Code {
+	case 0:
+		return nil
+	// TODO: add another codes https://vk.com/dev/errors
+	default:
+		return e
+	}
 }

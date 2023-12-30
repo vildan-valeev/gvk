@@ -150,14 +150,14 @@ func (d *Dispatcher) autoSetting(ctx context.Context) error {
 }
 
 func (d *Dispatcher) check(r APIResponseUpdate) (err error) {
-	switch r.Failed {
-	case 0:
+	switch {
+	case r.Failed == 0:
 		d.opts.Ts = r.Ts
-	case 1:
+	case r.Failed == 1:
 		d.opts.Ts = r.Ts
-	case 2:
+	case r.Failed == 2:
 		err = d.updateServer(false)
-	case 3:
+	case r.Failed == 3:
 		err = d.updateServer(true)
 	default:
 		log.Println("Dispatcher update check", err)
