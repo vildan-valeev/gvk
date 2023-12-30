@@ -74,7 +74,7 @@ func (d *Dispatcher) PollOptions(dropPendingUpdates bool) error {
 	for {
 		//TODO: сброс апдейтов
 
-		time.Sleep(50 * time.Millisecond)
+		time.Sleep(1000 * time.Millisecond)
 
 		result, err := d.api.GetUpdates(&d.opts)
 		if err != nil {
