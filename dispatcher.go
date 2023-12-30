@@ -6,7 +6,6 @@ import (
 	"log"
 	"net/http"
 	"sync"
-	"time"
 )
 
 type Bot interface {
@@ -73,8 +72,6 @@ func (d *Dispatcher) Poll() error {
 func (d *Dispatcher) PollOptions(dropPendingUpdates bool) error {
 	for {
 		//TODO: сброс апдейтов
-
-		time.Sleep(1000 * time.Millisecond)
 
 		result, err := d.api.GetUpdates(&d.opts)
 		if err != nil {

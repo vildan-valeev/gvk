@@ -25,8 +25,8 @@ func get[T Response](base, endpoint string, vals url.Values) (res T, err error) 
 	if err != nil {
 		return res, err
 	}
-	log.Printf("Response Error: %v", err)
-	log.Printf("Response BODY: %s", string(cnt))
+	//log.Printf("Response Error: %v", err)
+	//log.Printf("Response BODY: %s", string(cnt))
 	if err = json.Unmarshal(cnt, &res); err != nil {
 		return
 	}
@@ -60,6 +60,7 @@ func check(r Response) error {
 		return nil
 	// TODO: add another codes https://vk.com/dev/errors
 	default:
+		log.Println(e.Error())
 		return e
 	}
 }
