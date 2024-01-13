@@ -20,11 +20,12 @@ type MessageReply Message
 // MessageEdit struct.
 type MessageEdit Message
 
-//// MessageAllow struct.
-//type MessageAllow struct {
-//	UserID int    `json:"user_id"`
-//	Key    string `json:"key"`
-//}
+// MessageAllow struct.
+type MessageAllow struct {
+	UserID int    `json:"user_id"`
+	Key    string `json:"key"`
+}
+
 //
 //// MessageDeny struct.
 //type MessageDeny struct {
