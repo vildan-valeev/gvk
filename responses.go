@@ -110,6 +110,21 @@ func (a APIResponseGroupsIsMember) Base() APIError {
 	return a.Error
 }
 
+// ------ https://dev.vk.com/ru/method/wall.post#Результат -------------
+
+type APIResponseWallPost struct {
+	Error    APIError         `json:"error,omitempty"`
+	Response ResponseWallPost `json:"response,omitempty"`
+}
+
+type ResponseWallPost struct {
+	PostID int64 `json:"post_id"`
+}
+
+func (a APIResponseWallPost) Base() APIError {
+	return a.Error
+}
+
 // -------------------------
 
 type APIResponseUpdate struct {
@@ -146,6 +161,7 @@ type Object struct {
 	*MessageReply
 	*MessageEvent
 	*MessageEdit
+	*WallPostNew
 	// TODO: добавить остальные объекты Events
 }
 
@@ -226,6 +242,9 @@ func (u *Update) UnmarshalJSON(data []byte) error {
 	case EventMessageEvent:
 		u.Object.MessageEvent = &MessageEvent{}
 		return json.Unmarshal(temp.Object, u.Object.MessageEvent)
+	case EventWallPostNew:
+		u.Object.WallPostNew = &WallPostNew{}
+		return json.Unmarshal(temp.Object, u.Object.WallPostNew)
 	default:
 		return fmt.Errorf("unrecognized type value %q", u.Type)
 	}

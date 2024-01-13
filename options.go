@@ -16,8 +16,8 @@ type MessagesSendOptions struct {
 	Message         string   `query:"message"`
 	UserID          int64    `query:"user_id"`
 	Keyboard        Keyboard `query:"keyboard"`
-	DontParseLinks  int64    `json:"dont_parse_links"` // 1 - true, 0 - false
-	DisableMentions int64    `json:"disable_mentions"` // 1 - true, 0 - false
+	DontParseLinks  int64    `query:"dont_parse_links"` // 1 - true, 0 - false
+	DisableMentions int64    `query:"disable_mentions"` // 1 - true, 0 - false
 }
 
 type MessagesEditOptions struct {
@@ -61,4 +61,21 @@ type GroupsIsMemberOptions struct {
 	UserID   int64  `query:"user_id"`
 	UserIDs  string `query:"user_ids"`
 	Extended int64  `query:"extended"`
+}
+
+type WallPostOptions struct {
+	Message           string `query:"message"`
+	OwnerID           int64  `query:"owner_id"`
+	FriendsOnly       int64  `query:"friends_only"` // 1 - true, 0 - false
+	FromGroup         int64  `query:"from_group"`   // 1 - true, 0 - false
+	Signed            int64  `query:"signed"`       // 1 - true, 0 - false
+	PublishDate       int64  `query:"publish_date"`
+	Lat               string `query:"lat"`         // float64 as string: from -90 to 90
+	Long              string `query:"long"`        // float64 as string: from -90 to 90
+	MarkAsAds         string `query:"mark_as_ads"` // 1 - true, 0 - false
+	LinkPhotoID       string `query:"link_photo_id"`
+	LinkTitle         string `query:"link_title"`
+	CloseComments     int64  `query:"close_comments"`     // 1 - true, 0 - false
+	MuteNotifications int64  `query:"mute_notifications"` // 1 - true, 0 - false
+	Copyright         string `query:"copyright"`
 }

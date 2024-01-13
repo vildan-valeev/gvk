@@ -9,9 +9,14 @@ import (
 )
 
 const (
-	groupID = 194299208
-	token   = "b30fae3f8d488e20cdbe041cbec9a0aa62e7c52e6107f97f97a9fd9007abe32223e1373cce590bfabf374"
+	groupID      = 194299208
+	token        = "vk1.a.8-WDS15nXOxt3wU9pfCOHjAt0e7LiOZl8_u_su7PzFXVcgRgpJXZbDOB_cpBVKPOitdfTi9_Bp-oGQbrEeRr_ozjdHB3tbCtJOQFSe6VSEfX5C_IzvEUqZ3xnPlODyQTohFEh-EzhP9CcQEK5Ei6s0Xwy2L3JRSYIoup2wZFApIhpkGDTU5tdvQ09Skz7qMO3eg8fmqpM6jIzMfBIkZR6A"
+	tokenPosting = "vk1.a.F3PWupGyC4SKUFgQs51H1u7NOXcm8uWweVusWkmzWDwZha2uUzCeAItJGq4GBbwSQEnqIrHvVph6tt5xaHOc5w96q0GVKgJShvtUEIjtcEgj81CzXeaN8nJLEjrKN6ZVxpTU54Id45JOhY3sFBxg1giD45JxclmQXrk9FYxem6aRmXTpkSq-9hPnxuTyu5wb"
 )
+
+/*
+https://api.vk.com/method/wall.post?access_token=vk1.a.F3PWupGyC4SKUFgQs51H1u7NOXcm8uWweVusWkmzWDwZha2uUzCeAItJGq4GBbwSQEnqIrHvVph6tt5xaHOc5w96q0GVKgJShvtUEIjtcEgj81CzXeaN8nJLEjrKN6ZVxpTU54Id45JOhY3sFBxg1giD45JxclmQXrk9FYxem6aRmXTpkSq-9hPnxuTyu5wb&v=5.131&message=pong&from_group=1&owner_id=-194299208
+*/
 
 type stateFn func(event *gvk.Update) stateFn
 
@@ -40,6 +45,16 @@ func (b *Bot) Update(update *gvk.Update) {
 func (b *Bot) EntryHandler(update *gvk.Update) stateFn {
 	if strings.HasPrefix(update.Object.MessageNew.Message.Text, "ping") {
 		b.MessagesSend(&gvk.MessagesSendOptions{Message: "pong", UserID: b.chatID})
+
+		poster := gvk.NewAPI(tokenPosting)
+		opt := gvk.WallPostOptions{
+			Message:   "pong",
+			OwnerID:   -groupID,
+			FromGroup: 1,
+		}
+		post, err := poster.WallPost(&opt)
+		log.Println(post.Response.PostID, err)
+
 		return b.handleNext
 	}
 

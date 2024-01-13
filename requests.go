@@ -18,6 +18,7 @@ func get[T Response](base, endpoint string, vals url.Values) (res T, err error) 
 	if vals != nil {
 		if queries := vals.Encode(); queries != "" {
 			url = fmt.Sprintf("%s?%s", url, queries)
+			//log.Println(url)
 		}
 	}
 	//log.Printf("Request URL: %s", url)

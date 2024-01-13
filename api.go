@@ -75,3 +75,8 @@ func (a API) MessagesSendMessageEventAnswer(opts *MessageEventAnswerOptions) (re
 func (a API) UsersGet(opts *UsersGetOptions) (res APIResponseUsersGet, err error) {
 	return get[APIResponseUsersGet](a.base, "users.get", addValues(a.defaultParams(), opts))
 }
+
+// WallPost https://dev.vk.com/ru/method/wall.post
+func (a API) WallPost(opts *WallPostOptions) (res APIResponseWallPost, err error) {
+	return get[APIResponseWallPost](a.base, "wall.post", addValues(a.defaultParams(), opts))
+}

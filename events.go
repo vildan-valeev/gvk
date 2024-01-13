@@ -2,7 +2,11 @@ package gvk
 
 import "encoding/json"
 
-// MessageNew https://dev.vk.com/ru/api/community-events/json-schema#Сообщения
+/*
+https://dev.vk.com/ru/api/community-events/json-schema
+*/
+
+// MessageNew struct.
 type MessageNew struct {
 	Message    Message    `json:"message"`
 	ClientInfo ClientInfo `json:"client_info"`
@@ -14,28 +18,25 @@ type MessageReply Message
 // MessageEdit struct.
 type MessageEdit Message
 
-// // MessageAllowObject struct.
+//// MessageAllow struct.
+//type MessageAllow struct {
+//	UserID int    `json:"user_id"`
+//	Key    string `json:"key"`
+//}
 //
-//	type MessageAllowObject struct {
-//		UserID int    `json:"user_id"`
-//		Key    string `json:"key"`
-//	}
+//// MessageDeny struct.
+//type MessageDeny struct {
+//	UserID int `json:"user_id"`
+//}
 //
-// // MessageDenyObject struct.
-//
-//	type MessageDenyObject struct {
-//		UserID int `json:"user_id"`
-//	}
-//
-// // MessageTypingStateObject struct.
-//
-//	type MessageTypingStateObject struct {
-//		State  string `json:"state"`
-//		FromID int    `json:"from_id"`
-//		ToID   int    `json:"to_id"`
-//	}
-//
-// // MessageEventObject struct.
+//// MessageTypingState struct.
+//type MessageTypingState struct {
+//	State  string `json:"state"`
+//	FromID int    `json:"from_id"`
+//	ToID   int    `json:"to_id"`
+//}
+
+// MessageEvent struct.
 type MessageEvent struct {
 	UserID                int64           `json:"user_id"`
 	PeerID                int64           `json:"peer_id"`
@@ -44,54 +45,56 @@ type MessageEvent struct {
 	ConversationMessageID int64           `json:"conversation_message_id"`
 }
 
+// PhotoNewObject struct.
+type PhotoNew Photo
+
+// // PhotoCommentNewObject struct.
+// type PhotoCommentNewObject object.WallWallComment
 //
-//// PhotoNewObject struct.
-//type PhotoNewObject object.PhotosPhoto
+// // PhotoCommentEditObject struct.
+// type PhotoCommentEditObject object.WallWallComment
 //
-//// PhotoCommentNewObject struct.
-//type PhotoCommentNewObject object.WallWallComment
+// // PhotoCommentRestoreObject struct.
+// type PhotoCommentRestoreObject object.WallWallComment
 //
-//// PhotoCommentEditObject struct.
-//type PhotoCommentEditObject object.WallWallComment
+// // PhotoCommentDeleteObject struct.
 //
-//// PhotoCommentRestoreObject struct.
-//type PhotoCommentRestoreObject object.WallWallComment
+//	type PhotoCommentDeleteObject struct {
+//		OwnerID   int `json:"owner_id"`
+//		ID        int `json:"id"`
+//		UserID    int `json:"user_id"`
+//		DeleterID int `json:"deleter_id"`
+//		PhotoID   int `json:"photo_id"`
+//	}
 //
-//// PhotoCommentDeleteObject struct.
-//type PhotoCommentDeleteObject struct {
-//	OwnerID   int `json:"owner_id"`
-//	ID        int `json:"id"`
-//	UserID    int `json:"user_id"`
-//	DeleterID int `json:"deleter_id"`
-//	PhotoID   int `json:"photo_id"`
-//}
+// // AudioNewObject struct.
+// type AudioNewObject object.AudioAudio
 //
-//// AudioNewObject struct.
-//type AudioNewObject object.AudioAudio
+// // VideoNewObject struct.
+// type VideoNewObject object.VideoVideo
 //
-//// VideoNewObject struct.
-//type VideoNewObject object.VideoVideo
+// // VideoCommentNewObject struct.
+// type VideoCommentNewObject object.WallWallComment
 //
-//// VideoCommentNewObject struct.
-//type VideoCommentNewObject object.WallWallComment
+// // VideoCommentEditObject struct.
+// type VideoCommentEditObject object.WallWallComment
 //
-//// VideoCommentEditObject struct.
-//type VideoCommentEditObject object.WallWallComment
+// // VideoCommentRestoreObject struct.
+// type VideoCommentRestoreObject object.WallWallComment
 //
-//// VideoCommentRestoreObject struct.
-//type VideoCommentRestoreObject object.WallWallComment
+// // VideoCommentDeleteObject struct.
 //
-//// VideoCommentDeleteObject struct.
-//type VideoCommentDeleteObject struct {
-//	OwnerID   int `json:"owner_id"`
-//	ID        int `json:"id"`
-//	UserID    int `json:"user_id"`
-//	DeleterID int `json:"deleter_id"`
-//	VideoID   int `json:"video_id"`
-//}
-//
-//// WallPostNewObject struct.
-//type WallPostNewObject object.WallWallpost
+//	type VideoCommentDeleteObject struct {
+//		OwnerID   int `json:"owner_id"`
+//		ID        int `json:"id"`
+//		UserID    int `json:"user_id"`
+//		DeleterID int `json:"deleter_id"`
+//		VideoID   int `json:"video_id"`
+//	}
+
+// WallPostNewObject struct.
+type WallPostNew WallPost
+
 //
 //// WallRepostObject struct.
 //type WallRepostObject object.WallWallpost

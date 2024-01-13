@@ -120,7 +120,7 @@ const (
 // BaseMessageGeo struct.
 type BaseMessageGeo struct {
 	Coordinates BaseGeoCoordinates `json:"coordinates"`
-	Place       BasePlace          `json:"place"`
+	Place       Place              `json:"place"`
 	Showmap     int                `json:"showmap"`
 	Type        string             `json:"type"`
 }
@@ -132,23 +132,21 @@ type BaseGeoCoordinates struct {
 }
 
 // BasePlace struct.
-type BasePlace struct {
-	Address        string             `json:"address"`
-	Checkins       int                `json:"checkins"`
-	City           interface{}        `json:"city"` // BUG(VK): https://github.com/VKCOM/vk-api-schema/issues/143
-	Country        interface{}        `json:"country"`
-	Created        int                `json:"created"`
-	ID             int                `json:"id"`
-	Icon           string             `json:"icon"`
-	Latitude       float64            `json:"latitude"`
-	Longitude      float64            `json:"longitude"`
-	Title          string             `json:"title"`
-	Type           string             `json:"type"`
-	IsDeleted      bool               `json:"is_deleted"`
-	TotalCheckins  int                `json:"total_checkins"`
-	Updated        int                `json:"updated"`
-	CategoryObject BaseCategoryObject `json:"category_object"`
+type Place struct {
+	ID        int     `json:"id"`
+	Title     string  `json:"title"`
+	Latitude  float64 `json:"latitude"`
+	Longitude float64 `json:"longitude"`
+	Created   int     `json:"created"`
+	Icon      string  `json:"icon"`
+	Checkins  int     `json:"checkins"`
+	Updated   int     `json:"updated"`
+	Type      string  `json:"type"`
+	Country   int     `json:"country"`
+	City      int     `json:"city"`
+	Address   string  `json:"address"`
 }
+
 type BaseCategoryObject struct {
 	ID    int         `json:"id"`
 	Title string      `json:"title"`
@@ -161,4 +159,104 @@ type BaseImage struct {
 	URL    string  `json:"url"`
 	Width  float64 `json:"width"`
 	Type   string  `json:"type"`
+}
+
+type Photo struct {
+	ID      int          `json:"id"`       // Photo ID
+	AlbumID int          `json:"album_id"` // Album ID
+	OwnerID int          `json:"owner_id"` // Photo owner's ID
+	UserID  int          `json:"user_id"`  // ID of the user who have uploaded the photo
+	Text    string       `json:"text"`     // Photo caption
+	Date    int          `json:"date"`     // Date when uploaded
+	Sizes   []PhotoSizes `json:"sizes"`
+	Width   int          `json:"width"`  // Original photo width
+	Height  int          `json:"height"` // Original photo height
+}
+
+type PhotoSizes struct {
+	Height float64 `json:"height"`
+	URL    string  `json:"url"`
+	Width  float64 `json:"width"`
+	Type   string  `json:"type"`
+}
+
+type WallPost struct {
+	ID           int        `json:"id"`       // Post ID
+	OwnerID      int        `json:"owner_id"` // Wall owner's ID
+	FromID       int        `json:"from_id"`  // Post author ID
+	CreatedBy    int        `json:"created_by"`
+	Date         int        `json:"date"` // Date of publishing in Unixtime
+	Text         string     `json:"text"` // Post text
+	ReplyOwnerID int        `json:"reply_owner_id"`
+	ReplyPostID  int        `json:"reply_post_id"`
+	FriendsOnly  int        `json:"friends_only"` // 1, если запись была создана с опцией «Только для друзей».
+	Comments     Comments   `json:"comments"`
+	Copyright    Copyright  `json:"copyright"`
+	Likes        Likes      `json:"likes"`   // Count of likes
+	Reposts      Reposts    `json:"reposts"` // Count of reposts
+	Views        Views      `json:"views"`   // Count of views
+	PostType     string     `json:"post_type"`
+	PostSource   PostSource `json:"post_source"`
+
+	//Attachments []WallWallpostAttachment `json:"attachments"`
+	Geo         Geo        `json:"geo"`
+	SignerID    int        `json:"signer_id"` // Post signer ID
+	CopyHistory []WallPost `json:"copy_history"`
+	CanPin      int        `json:"can_pin"`
+	CanDelete   int        `json:"can_delete"`
+	CanEdit     int        `json:"can_edit"`
+	IsPinned    int        `json:"is_pinned"`
+	IsFavorite  int        `json:"is_favorite"` // Information whether the post in favorites list
+	MarkedAsAds int        `json:"marked_as_ads"`
+	PostponedID int        `json:"postponed_id"` // ID from scheduled posts
+}
+
+// CommentsInfo struct.
+type Comments struct {
+	Count         int `json:"count"`
+	CanPost       int `json:"can_post"` // информация о том, может ли текущий пользователь комментировать запись (1 — может, 0 — не может);
+	GroupsCanPost int `json:"groups_can_post"`
+	CanClose      int `json:"can_close"`
+	CanOpen       int `json:"can_open"`
+}
+
+// Copyright information about the source of the post.
+type Copyright struct {
+	ID   int    `json:"id,omitempty"`
+	Link string `json:"link"`
+	Type string `json:"type"`
+	Name string `json:"name"`
+}
+
+// Likes struct.
+type Likes struct {
+	CanLike    int `json:"can_like"`    // Information whether current user can like the post
+	CanPublish int `json:"can_publish"` // Information whether current user can repost
+	UserLikes  int `json:"user_likes"`  // Information whether current uer has liked the post
+	Count      int `json:"count"`       // Likes number
+}
+
+// Reposts struct.
+type Reposts struct {
+	Count        int `json:"count"`
+	UserReposted int `json:"user_reposted"`
+}
+
+// Views struct.
+type Views struct {
+	Count int `json:"count"` // Count
+}
+
+type PostSource struct {
+	Data     string `json:"data"`     // Additional data
+	Platform string `json:"platform"` // Platform name
+	Type     string `json:"type"`
+	URL      string `json:"url"` // URL to an external site used to publish the post
+}
+
+// BaseGeo struct.
+type Geo struct {
+	Coordinates string `json:"coordinates"`
+	Place       Place  `json:"place"`
+	Type        string `json:"type"`
 }
