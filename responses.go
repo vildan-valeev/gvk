@@ -163,6 +163,7 @@ type Object struct {
 	*MessageEdit
 	*MessageAllow
 	*MessageDeny
+	*MessageTypingState
 
 	*WallPostNew
 	// TODO: добавить остальные объекты Events
@@ -175,10 +176,19 @@ func (u *Update) ChatID() int64 {
 	switch {
 	case u.Object.MessageNew != nil:
 		return u.Object.MessageNew.Message.FromID
+	case u.Object.MessageEdit != nil:
+		return u.Object.MessageEdit.FromID
+	case u.Object.MessageAllow != nil:
+		return u.Object.MessageAllow.UserID
+	case u.Object.MessageDeny != nil:
+		return u.Object.MessageDeny.UserID
+	case u.Object.MessageTypingState != nil:
+		return u.Object.MessageTypingState.FromID
 	case u.Object.MessageEvent != nil:
 		return u.Object.MessageEvent.UserID
-	//case u.EditedMessage != nil:
-	//	return u.EditedMessage.Chat.ID
+
+	case u.Object.WallPostNew != nil:
+		return u.Object.WallPostNew.FromID
 	//case u.ChannelPost != nil:
 	//	return u.ChannelPost.Chat.ID
 	//case u.EditedChannelPost != nil:
@@ -250,10 +260,15 @@ func (u *Update) UnmarshalJSON(data []byte) error {
 		return json.Unmarshal(temp.Object, u.Object.MessageEvent)
 	case EventMessageDeny:
 		u.Object.MessageDeny = &MessageDeny{}
-		return json.Unmarshal(temp.Object, u.Object.MessageEvent)
+		return json.Unmarshal(temp.Object, u.Object.MessageDeny)
+	case EventMessageTypingState:
+		u.Object.MessageTypingState = &MessageTypingState{}
+		return json.Unmarshal(temp.Object, u.Object.MessageTypingState)
+		//TODO: add another events
 	case EventWallPostNew:
 		u.Object.WallPostNew = &WallPostNew{}
 		return json.Unmarshal(temp.Object, u.Object.WallPostNew)
+		//TODO: add another events
 	default:
 		return fmt.Errorf("unrecognized type value %q", u.Type)
 	}

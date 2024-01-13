@@ -151,8 +151,8 @@ type Place struct {
 
 type WallPost struct {
 	ID           int                  `json:"id"`       // Post ID
-	OwnerID      int                  `json:"owner_id"` // Wall owner's ID
-	FromID       int                  `json:"from_id"`  // Post author ID
+	OwnerID      int64                `json:"owner_id"` // Wall owner's ID
+	FromID       int64                `json:"from_id"`  // Post author ID
 	CreatedBy    int                  `json:"created_by"`
 	Date         int                  `json:"date"` // Date of publishing in Unixtime
 	Text         string               `json:"text"` // Post text

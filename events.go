@@ -22,21 +22,21 @@ type MessageEdit Message
 
 // MessageAllow struct.
 type MessageAllow struct {
-	UserID int    `json:"user_id"`
+	UserID int64  `json:"user_id"`
 	Key    string `json:"key"`
 }
 
 // MessageDeny struct.
 type MessageDeny struct {
-	UserID int `json:"user_id"`
+	UserID int64 `json:"user_id"`
 }
 
-//// MessageTypingState struct.
-//type MessageTypingState struct {
-//	State  string `json:"state"`
-//	FromID int    `json:"from_id"`
-//	ToID   int    `json:"to_id"`
-//}
+// MessageTypingState struct.
+type MessageTypingState struct {
+	State  string `json:"state"`
+	FromID int64  `json:"from_id"`
+	ToID   int    `json:"to_id"`
+}
 
 // MessageEvent struct.
 type MessageEvent struct {
