@@ -1,6 +1,8 @@
 package gvk
 
-import "encoding/json"
+import (
+	"encoding/json"
+)
 
 /*
 https://dev.vk.com/ru/api/community-events/json-schema
@@ -45,8 +47,8 @@ type MessageEvent struct {
 	ConversationMessageID int64           `json:"conversation_message_id"`
 }
 
-// PhotoNewObject struct.
-type PhotoNew Photo
+//// PhotoNewObject struct.
+//type PhotoNew objects.Photo
 
 // // PhotoCommentNewObject struct.
 // type PhotoCommentNewObject object.WallWallComment
@@ -92,7 +94,7 @@ type PhotoNew Photo
 //		VideoID   int `json:"video_id"`
 //	}
 
-// WallPostNewObject struct.
+// WallPostNew struct.
 type WallPostNew WallPost
 
 //

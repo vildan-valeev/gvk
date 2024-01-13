@@ -1,5 +1,7 @@
 package gvk
 
+import "github.com/vildan-valeev/gvk/objects"
+
 // ClientInfo struct.
 type ClientInfo struct {
 	ButtonActions  []string `json:"button_actions"`
@@ -147,71 +149,37 @@ type Place struct {
 	Address   string  `json:"address"`
 }
 
-type BaseCategoryObject struct {
-	ID    int         `json:"id"`
-	Title string      `json:"title"`
-	Icons []BaseImage `json:"icons"`
-}
-
-// BaseImage struct.
-type BaseImage struct {
-	Height float64 `json:"height"`
-	URL    string  `json:"url"`
-	Width  float64 `json:"width"`
-	Type   string  `json:"type"`
-}
-
-type Photo struct {
-	ID      int          `json:"id"`       // Photo ID
-	AlbumID int          `json:"album_id"` // Album ID
-	OwnerID int          `json:"owner_id"` // Photo owner's ID
-	UserID  int          `json:"user_id"`  // ID of the user who have uploaded the photo
-	Text    string       `json:"text"`     // Photo caption
-	Date    int          `json:"date"`     // Date when uploaded
-	Sizes   []PhotoSizes `json:"sizes"`
-	Width   int          `json:"width"`  // Original photo width
-	Height  int          `json:"height"` // Original photo height
-}
-
-type PhotoSizes struct {
-	Height float64 `json:"height"`
-	URL    string  `json:"url"`
-	Width  float64 `json:"width"`
-	Type   string  `json:"type"`
-}
-
 type WallPost struct {
-	ID           int        `json:"id"`       // Post ID
-	OwnerID      int        `json:"owner_id"` // Wall owner's ID
-	FromID       int        `json:"from_id"`  // Post author ID
-	CreatedBy    int        `json:"created_by"`
-	Date         int        `json:"date"` // Date of publishing in Unixtime
-	Text         string     `json:"text"` // Post text
-	ReplyOwnerID int        `json:"reply_owner_id"`
-	ReplyPostID  int        `json:"reply_post_id"`
-	FriendsOnly  int        `json:"friends_only"` // 1, если запись была создана с опцией «Только для друзей».
-	Comments     Comments   `json:"comments"`
-	Copyright    Copyright  `json:"copyright"`
-	Likes        Likes      `json:"likes"`   // Count of likes
-	Reposts      Reposts    `json:"reposts"` // Count of reposts
-	Views        Views      `json:"views"`   // Count of views
-	PostType     string     `json:"post_type"`
-	PostSource   PostSource `json:"post_source"`
-
-	//Attachments []WallWallpostAttachment `json:"attachments"`
-	Geo         Geo        `json:"geo"`
-	SignerID    int        `json:"signer_id"` // Post signer ID
-	CopyHistory []WallPost `json:"copy_history"`
-	CanPin      int        `json:"can_pin"`
-	CanDelete   int        `json:"can_delete"`
-	CanEdit     int        `json:"can_edit"`
-	IsPinned    int        `json:"is_pinned"`
-	IsFavorite  int        `json:"is_favorite"` // Information whether the post in favorites list
-	MarkedAsAds int        `json:"marked_as_ads"`
-	PostponedID int        `json:"postponed_id"` // ID from scheduled posts
+	ID           int                  `json:"id"`       // Post ID
+	OwnerID      int                  `json:"owner_id"` // Wall owner's ID
+	FromID       int                  `json:"from_id"`  // Post author ID
+	CreatedBy    int                  `json:"created_by"`
+	Date         int                  `json:"date"` // Date of publishing in Unixtime
+	Text         string               `json:"text"` // Post text
+	ReplyOwnerID int                  `json:"reply_owner_id"`
+	ReplyPostID  int                  `json:"reply_post_id"`
+	FriendsOnly  int                  `json:"friends_only"` // 1, если запись была создана с опцией «Только для друзей».
+	Comments     Comments             `json:"comments"`
+	Copyright    Copyright            `json:"copyright"`
+	Likes        Likes                `json:"likes"`   // Count of likes
+	Reposts      Reposts              `json:"reposts"` // Count of reposts
+	Views        Views                `json:"views"`   // Count of views
+	PostType     string               `json:"post_type"`
+	PostSource   PostSource           `json:"post_source"`
+	Attachments  []WallPostAttachment `json:"attachments"`
+	Geo          Geo                  `json:"geo"`
+	SignerID     int                  `json:"signer_id"` // Post signer ID
+	CopyHistory  []WallPost           `json:"copy_history"`
+	CanPin       int                  `json:"can_pin"`
+	CanDelete    int                  `json:"can_delete"`
+	CanEdit      int                  `json:"can_edit"`
+	IsPinned     int                  `json:"is_pinned"`
+	IsFavorite   bool                 `json:"is_favorite"` // true, если объект добавлен в закладки у текущего пользователя.
+	MarkedAsAds  int                  `json:"marked_as_ads"`
+	PostponedID  int                  `json:"postponed_id"` // ID from scheduled posts
 }
 
-// CommentsInfo struct.
+// Comments struct.
 type Comments struct {
 	Count         int `json:"count"`
 	CanPost       int `json:"can_post"` // информация о том, может ли текущий пользователь комментировать запись (1 — может, 0 — не может);
@@ -233,7 +201,7 @@ type Likes struct {
 	CanLike    int `json:"can_like"`    // Information whether current user can like the post
 	CanPublish int `json:"can_publish"` // Information whether current user can repost
 	UserLikes  int `json:"user_likes"`  // Information whether current uer has liked the post
-	Count      int `json:"count"`       // Likes number
+	Count      int `json:"count"`
 }
 
 // Reposts struct.
@@ -259,4 +227,78 @@ type Geo struct {
 	Coordinates string `json:"coordinates"`
 	Place       Place  `json:"place"`
 	Type        string `json:"type"`
+}
+
+// WallPostAttachment struct.
+type WallPostAttachment struct {
+	Type  string        `json:"type"`
+	Photo objects.Photo `json:"photo"`
+	//Deprecated
+	PostedPhoto PostedPhoto   `json:"posted_photo"`
+	Video       objects.Video `json:"video"`
+	Audio       objects.Audio `json:"audio"`
+	Doc         objects.Doc   `json:"doc"`
+	//Deprecated
+	Graffiti    WallGraffiti        `json:"graffiti"`
+	Link        objects.Link        `json:"link"`
+	Note        objects.Note        `json:"note"`
+	Poll        objects.Poll        `json:"poll"`
+	Page        objects.WikiPage    `json:"page"`
+	Album       PhotoAlbum          `json:"album"`
+	PhotosList  []string            `json:"photos_list"`
+	Market      objects.MarketItem  `json:"market"`
+	MarketAlbum objects.MarketAlbum `json:"market_market_album"`
+	Sticker     objects.Sticker     `json:"sticker"`
+	Event       EventAttach         `json:"event"`
+	PrettyCards []PrettyCard        `json:"podcast"`
+}
+
+type PostedPhoto struct {
+	ID       int    `json:"id"`        // Photo ID
+	OwnerID  int    `json:"owner_id"`  // Photo owner's ID
+	Photo130 string `json:"photo_130"` // URL of the preview image with 130 px in width
+	Photo604 string `json:"photo_604"` // URL of the preview image with 604 px in width
+}
+
+// WallGraffiti struct.
+type WallGraffiti struct {
+	ID       int    `json:"id"`        // Graffiti ID
+	OwnerID  int    `json:"owner_id"`  // Graffiti owner's ID
+	Photo130 string `json:"photo_200"` // URL of the preview image with 130 px in width
+	Photo604 string `json:"photo_586"` // URL of the preview image with 604 px in width
+}
+
+// PhotoAlbum struct.
+type PhotoAlbum struct {
+	ID          int           `json:"id"` // Photo album ID
+	Thumb       objects.Photo `json:"thumb"`
+	OwnerID     int           `json:"owner_id"`    // Album owner's ID
+	Title       string        `json:"title"`       // Photo album title
+	Description string        `json:"description"` // Photo album description
+	Created     int           `json:"created"`     // Date when the album has been created in Unixtime
+	Updated     int           `json:"updated"`     // Date when the album has been updated last time in Unixtime
+	Size        int           `json:"size"`        // Photos number
+}
+
+// EventAttach struct.
+type EventAttach struct {
+	ID           int    `json:"id"`                      // event ID
+	Time         int    `json:"time,omitempty"`          // event start time
+	MemberStatus int    `json:"member_status,omitempty"` // Идёт ли текущий пользователь на встречу. Возможные значения: 1 — точно идёт; 2 — возможно пойдёт; 3 — не идёт.
+	Address      string `json:"address,omitempty"`       // address of event
+	ButtonText   string `json:"button_text"`             // text of attach
+	Friends      []int  `json:"friends"`                 // array of friends ids
+	IsFavorite   bool   `json:"is_favorite"`             // is favorite
+	Text         string `json:"text"`                    // text of attach
+
+}
+
+type PrettyCard struct {
+	CardID   string          `json:"card_id"`
+	LinkURL  string          `json:"link_url"`
+	Title    string          `json:"title"`
+	Images   []objects.Photo `json:"images"`
+	Button   objects.Button  `json:"button"`
+	Price    string          `json:"price"`
+	PriceOld string          `json:"price_old"`
 }

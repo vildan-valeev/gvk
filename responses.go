@@ -275,7 +275,7 @@ const (
 	EventVideoCommentEdit                        = "video_comment_edit"
 	EventVideoCommentRestore                     = "video_comment_restore"
 	EventVideoCommentDelete                      = "video_comment_delete"
-	EventWallPostNew                             = "wall_post_new"
+	EventWallPostNew                   EventType = "wall_post_new"
 	EventWallRepost                              = "wall_repost"
 	EventWallReplyNew                            = "wall_reply_new"
 	EventWallReplyEdit                           = "wall_reply_edit"
