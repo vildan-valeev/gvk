@@ -26,12 +26,11 @@ type MessageAllow struct {
 	Key    string `json:"key"`
 }
 
-//
-//// MessageDeny struct.
-//type MessageDeny struct {
-//	UserID int `json:"user_id"`
-//}
-//
+// MessageDeny struct.
+type MessageDeny struct {
+	UserID int `json:"user_id"`
+}
+
 //// MessageTypingState struct.
 //type MessageTypingState struct {
 //	State  string `json:"state"`

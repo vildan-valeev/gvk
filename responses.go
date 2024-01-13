@@ -162,6 +162,7 @@ type Object struct {
 	*MessageEvent
 	*MessageEdit
 	*MessageAllow
+	*MessageDeny
 
 	*WallPostNew
 	// TODO: добавить остальные объекты Events
@@ -246,6 +247,9 @@ func (u *Update) UnmarshalJSON(data []byte) error {
 		return json.Unmarshal(temp.Object, u.Object.MessageAllow)
 	case EventMessageEvent:
 		u.Object.MessageEvent = &MessageEvent{}
+		return json.Unmarshal(temp.Object, u.Object.MessageEvent)
+	case EventMessageDeny:
+		u.Object.MessageDeny = &MessageDeny{}
 		return json.Unmarshal(temp.Object, u.Object.MessageEvent)
 	case EventWallPostNew:
 		u.Object.WallPostNew = &WallPostNew{}
