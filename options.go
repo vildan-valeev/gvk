@@ -82,11 +82,11 @@ type WallPostOptions struct {
 
 // WallEditOptions https://dev.vk.com/ru/method/wall.edit
 type WallEditOptions struct {
-	OwnerID             int64  `query:"owner_id"`
-	PostID              int64  `query:"post_id"`      // required
-	FriendsOnly         int64  `query:"friends_only"` // 1 - true, 0 - false
-	Message             string `query:"message"`
-	Attachments         string `query:"attachments"` // <type><owner_id>_<media_id>,<type><owner_id>_<media_id>
+	OwnerID     int64  `query:"owner_id"`
+	PostID      int64  `query:"post_id"`      // required
+	FriendsOnly int64  `query:"friends_only"` // 1 - true, 0 - false
+	Message     string `query:"message"`
+	//Attachments         string `query:"attachments"` // <type><owner_id>_<media_id>,<type><owner_id>_<media_id>
 	Services            string `query:"services"`
 	Signed              int64  `query:"signed"` // 1 - true, 0 - false
 	PublishDate         int64  `query:"publish_date"`
