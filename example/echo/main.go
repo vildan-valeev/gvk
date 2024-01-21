@@ -14,10 +14,6 @@ const (
 	tokenPosting = "vk1.a.F3PWupGyC4SKUFgQs51H1u7NOXcm8uWweVusWkmzWDwZha2uUzCeAItJGq4GBbwSQEnqIrHvVph6tt5xaHOc5w96q0GVKgJShvtUEIjtcEgj81CzXeaN8nJLEjrKN6ZVxpTU54Id45JOhY3sFBxg1giD45JxclmQXrk9FYxem6aRmXTpkSq-9hPnxuTyu5wb"
 )
 
-/*
-https://api.vk.com/method/wall.post?access_token=vk1.a.F3PWupGyC4SKUFgQs51H1u7NOXcm8uWweVusWkmzWDwZha2uUzCeAItJGq4GBbwSQEnqIrHvVph6tt5xaHOc5w96q0GVKgJShvtUEIjtcEgj81CzXeaN8nJLEjrKN6ZVxpTU54Id45JOhY3sFBxg1giD45JxclmQXrk9FYxem6aRmXTpkSq-9hPnxuTyu5wb&v=5.131&message=pong&from_group=1&owner_id=-194299208
-*/
-
 type stateFn func(event *gvk.Update) stateFn
 
 type Bot struct {
@@ -45,15 +41,6 @@ func (b *Bot) Update(update *gvk.Update) {
 func (b *Bot) EntryHandler(update *gvk.Update) stateFn {
 	if strings.HasPrefix(update.Object.MessageNew.Message.Text, "ping") {
 		b.MessagesSend(&gvk.MessagesSendOptions{Message: "pong", UserID: b.chatID})
-
-		poster := gvk.NewAPI(tokenPosting)
-		opt := gvk.WallPostOptions{
-			Message:   "pong",
-			OwnerID:   -groupID,
-			FromGroup: 1,
-		}
-		post, err := poster.WallPost(&opt)
-		log.Println(post.Response.PostID, err)
 
 		return b.handleNext
 	}

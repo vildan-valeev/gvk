@@ -80,3 +80,8 @@ func (a API) UsersGet(opts *UsersGetOptions) (res APIResponseUsersGet, err error
 func (a API) WallPost(opts *WallPostOptions) (res APIResponseWallPost, err error) {
 	return get[APIResponseWallPost](a.base, "wall.post", addValues(a.defaultParams(), opts))
 }
+
+// WallEdit https://dev.vk.com/ru/method/wall.edit
+func (a API) WallEdit(opts *WallEditOptions) (res APIResponseWallEdit, err error) {
+	return get[APIResponseWallEdit](a.base, "wall.edit", addValues(a.defaultParams(), opts))
+}

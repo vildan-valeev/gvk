@@ -125,6 +125,21 @@ func (a APIResponseWallPost) Base() APIError {
 	return a.Error
 }
 
+// ------ https://dev.vk.com/ru/method/wall.edit -------------
+
+type APIResponseWallEdit struct {
+	Error    APIError         `json:"error,omitempty"`
+	Response ResponseWallEdit `json:"response,omitempty"`
+}
+
+type ResponseWallEdit struct {
+	PostID int64 `json:"post_id"`
+}
+
+func (a APIResponseWallEdit) Base() APIError {
+	return a.Error
+}
+
 // -------------------------
 
 type APIResponseUpdate struct {
