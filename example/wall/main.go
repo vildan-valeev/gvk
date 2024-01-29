@@ -51,6 +51,7 @@ func (b *Bot) EntryHandler(update *gvk.Update) stateFn {
 			log.Fatalln(err)
 		}
 		b.postID = post.Response.PostID
+
 		b.MessagesSend(&gvk.MessagesSendOptions{Message: "pong to channel...", UserID: b.chatID})
 		return b.handleNext
 	}
@@ -61,13 +62,14 @@ func (b *Bot) EntryHandler(update *gvk.Update) stateFn {
 }
 
 func (b *Bot) handleNext(update *gvk.Update) stateFn {
-	//poster := gvk.NewAPI(tokenPosting)
-	//opt := gvk.WallEditOptions{
-	//	Message: "update pong",
-	//	OwnerID: -groupID,
-	//}
-	//_, err := poster.WallEdit(&opt)
-	//log.Println(b.postID, err)
+	poster := gvk.NewAPI(tokenPosting)
+	opt := gvk.WallEditOptions{
+		Message: "update pong",
+		OwnerID: -groupID,
+		PostID:  b.postID,
+	}
+	_, err := poster.WallEdit(&opt)
+	log.Println(b.postID, err)
 	b.MessagesSend(&gvk.MessagesSendOptions{
 		Message: "pong again )))",
 		UserID:  b.chatID,
@@ -84,3 +86,7 @@ func main() {
 	log.Println(err)
 	log.Println(dsp.Poll())
 }
+
+/*
+https://api.vk.com/method/wall.edit?access_token=vk1.a.69WlhlECCfNrz2kJvBFvOwKYmlNay-RZ-w4HoTMoUu9_i_TDABY9Y_vevyXh3z3BystqsMFH_pDIxMLDjHSROZCOcpwPpHet10cQNi4LMCpYPPAy2EfpUPL0sUUZSLZp807xabogflTr3wtOV0y7d9ngDOZ1DFeRbhkFiveIV8ls0Op_EWcKcCOnN0c5saMXufUjs_5FaMqOVBerfmCxKg&message=Откликнуться&owner_id=-194299208&post_id=206&v=5.199
+*/
