@@ -9,11 +9,6 @@ import (
 	"github.com/vildan-valeev/gvk"
 )
 
-//const (
-//	groupID = 194299208
-//	token   = "b30fae3f8d488e20cdbe041cbec9a0aa62e7c52e6107f97f97a9fd9007abe32223e1373cce590bfabf374"
-//)
-
 type stateFn func(event *gvk.Update) stateFn
 
 type Bot struct {

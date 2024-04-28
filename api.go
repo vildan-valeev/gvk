@@ -25,7 +25,7 @@ import (
 )
 
 const (
-	APIVersion = "5.131"
+	APIVersion = "5.199"
 )
 
 // https://dev.vk.com/ru/api/community-messages/getting-started#Доступные инструменты и методы
