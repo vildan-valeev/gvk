@@ -37,7 +37,7 @@ func (b *Bot) EntryHandler(update *gvk.Update) stateFn {
 		if strings.HasPrefix(update.Object.MessageNew.Message.Text, "ping") {
 			b.MessagesSend(&gvk.MessagesSendOptions{Message: "pong to channel...", UserID: b.chatID})
 
-			poster := gvk.NewAPI(tokenPosting) // https://oauth.vk.com/authorize?client_id=APP_ID&display=page&redirect_uri=https://oauth.vk.com/blank.html&scope=wall,offline&response_type=token&v=5.199
+			poster := gvk.NewAPI(token) // https://oauth.vk.com/authorize?client_id=APP_ID&display=page&redirect_uri=https://oauth.vk.com/blank.html&scope=wall,offline&response_type=token&v=5.199
 			opt := gvk.WallPostOptions{
 				Message:   "pong 1",
 				OwnerID:   -groupID,
@@ -61,7 +61,7 @@ func (b *Bot) EntryHandler(update *gvk.Update) stateFn {
 
 func (b *Bot) handleNext(update *gvk.Update) stateFn {
 
-	poster := gvk.NewAPI(tokenPosting)
+	poster := gvk.NewAPI(token)
 	opt := gvk.WallPostOptions{
 		Message:   "pong 2",
 		OwnerID:   -groupID,

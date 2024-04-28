@@ -33,7 +33,6 @@ func (b *Bot) Update(update *gvk.Update) {
 }
 
 func (b *Bot) EntryHandler(update *gvk.Update) stateFn {
-	fmt.Println("INCOME TEXT", update.Object.MessageNew.Message.Text)
 	if strings.HasPrefix(update.Object.MessageNew.Message.Text, "ping") {
 		buttons := make([][]gvk.Button, 0)
 		buttons = append(buttons, []gvk.Button{

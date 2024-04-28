@@ -22,7 +22,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"net/url"
 )
@@ -79,7 +78,6 @@ func check(r Response) error {
 		return nil
 	// TODO: add another codes https://vk.com/dev/errors
 	default:
-		log.Println(e.Error())
 		return e
 	}
 }

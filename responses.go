@@ -248,10 +248,6 @@ func (u *Update) ChatID() int64 {
 }
 
 func (a RawUpdates) UnmarshalCustom() (Updates, error) {
-	//if len(a) > 0 {
-	//	fmt.Println("COUNT UPDATES", len(a))
-	//}
-
 	var updates Updates
 	for _, row := range a {
 		update := Update{}
