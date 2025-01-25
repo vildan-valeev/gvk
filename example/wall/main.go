@@ -37,7 +37,7 @@ func (b *Bot) EntryHandler(update *gvk.Update) stateFn {
 		if strings.HasPrefix(update.Object.MessageNew.Message.Text, "ping") {
 			b.MessagesSend(&gvk.MessagesSendOptions{Message: "pong to channel...", UserID: b.chatID})
 
-			poster := gvk.NewAPI(token) // https://oauth.vk.com/authorize?client_id=APP_ID&display=page&redirect_uri=https://oauth.vk.com/blank.html&scope=wall,offline&response_type=token&v=5.199
+			poster := gvk.NewAPI(token)
 			opt := gvk.WallPostOptions{
 				Message:   "pong 1",
 				OwnerID:   -groupID,
@@ -45,7 +45,8 @@ func (b *Bot) EntryHandler(update *gvk.Update) stateFn {
 			}
 
 			post, err := poster.WallPost(&opt)
-			log.Println(post.Response.PostID)
+			b.postID = post.Response.PostID
+
 			if err != nil {
 				log.Println(err)
 			}
@@ -61,14 +62,14 @@ func (b *Bot) EntryHandler(update *gvk.Update) stateFn {
 
 func (b *Bot) handleNext(update *gvk.Update) stateFn {
 
-	poster := gvk.NewAPI(token)
-	opt := gvk.WallPostOptions{
-		Message:   "pong 2",
-		OwnerID:   -groupID,
-		FromGroup: 1,
+	poster := gvk.NewAPI(userToken) // https://oauth.vk.com/authorize?client_id=APP_ID&display=page&redirect_uri=https://oauth.vk.com/blank.html&scope=wall,offline&response_type=token&v=5.199
+	opt := gvk.WallEditOptions{
+		Message: "pong 1 (edit)",
+		OwnerID: -groupID,
+		PostID:  b.postID,
 	}
 
-	post, err := poster.WallPost(&opt)
+	post, err := poster.WallEdit(&opt)
 
 	if err != nil {
 		log.Println(err)
@@ -76,7 +77,7 @@ func (b *Bot) handleNext(update *gvk.Update) stateFn {
 	log.Println(post.Response.PostID)
 
 	b.MessagesSend(&gvk.MessagesSendOptions{
-		Message: "pong again )))",
+		Message: "pong again (edit)",
 		UserID:  b.chatID,
 	})
 

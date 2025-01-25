@@ -1,3 +1,3 @@
 module github.com/vildan-valeev/gvk
 
-go 1.22
+go 1.23
